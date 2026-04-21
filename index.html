@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>여은혜 포트폴리오 — Event Operations Specialist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Noto+Serif+KR:wght@300;400&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   DESIGN TOKENS — 이 블록만 바꾸면 전체 디자인이 바뀝니다
+   ============================================================ */
+:root {
+  --bg          : #0E0E0E;
+  --surface     : #161616;
+  --surface-2   : #1C1C1C;
+  --border      : #262626;
+  --border-2    : #333333;
+  --text-head   : #F0EDE8;
+  --text-body   : #B8B4AE;
+  --text-muted  : #565650;
+  --gold        : #C9A96E;
+  --gold-dim    : rgba(201,169,110,.12);
+  --gold-on     : #0E0E0E;
+
+  --f-disp  : 'Cormorant Garamond', Georgia, serif;
+  --f-sans  : 'DM Sans', sans-serif;
+  --f-kr    : 'Noto Sans KR', sans-serif;
+  --f-kr-s  : 'Noto Serif KR', serif;
+
+  --ease    : cubic-bezier(.22,.61,.36,1);
+  --pad     : 72px;          /* 좌우 패딩 */
+  --maxw    : 1240px;
+  --sgap    : 120px;         /* 섹션 상하 여백 */
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text-body);font-family:var(--f-sans);overflow-x:hidden;line-height:1.6}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+button{background:none;border:none;cursor:pointer;font:inherit;color:inherit}
+img{display:block;max-width:100%}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineGrow{to{height:62%}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes scrollPulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.u-fade{opacity:0;animation:fadeUp .7s var(--ease) both}
+.u-reveal{opacity:0;transform:translateY(18px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.u-reveal.in{opacity:1;transform:translateY(0)}
+
+/* ============================================================
+   LAYOUT HELPERS
+   ============================================================ */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+.section{padding:var(--sgap) var(--pad)}
+.section .wrap{padding:0}
+
+/* 섹션 레이블 */
+.sec-label{
+  display:flex;align-items:center;gap:12px;
+  font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:20px;
+}
+.sec-label::before{content:'';display:block;width:24px;height:1px;background:var(--gold);flex-shrink:0}
+
+/* 섹션 타이틀 */
+.sec-title{
+  font-family:var(--f-disp);font-weight:300;
+  font-size:clamp(2rem,3.8vw,3.2rem);
+  color:var(--text-head);line-height:1.2;letter-spacing:.01em;
+  margin-bottom:16px;
+}
+
+/* 섹션 서브타이틀 */
+.sec-sub{
+  font-family:var(--f-kr);font-weight:300;
+  font-size:clamp(.84rem,1.15vw,.94rem);
+  color:var(--text-body);line-height:1.88;
+}
+
+/* 섹션 헤더 공통 여백 */
+.sec-head{margin-bottom:72px}
+
+/* ============================================================
+   GRID DIVIDER — 1px gap trick
+   ============================================================ */
+.grid-div{
+  display:grid;
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+}
+
+/* ============================================================
+   BUTTON
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:14px;
+  padding:14px 36px;
+  font-family:var(--f-sans);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+  position:relative;overflow:hidden;transition:color .32s var(--ease);cursor:pointer;
+}
+.btn--gold{border:1px solid var(--gold);color:var(--gold)}
+.btn--gold::before{
+  content:'';position:absolute;inset:0;background:var(--gold);
+  transform:translateX(-101%);transition:transform .32s var(--ease);z-index:0
+}
+.btn--gold:hover::before{transform:translateX(0)}
+.btn--gold:hover{color:var(--gold-on)}
+.btn span,.btn-arrow{position:relative;z-index:1}
+.btn-arrow{transition:transform .28s}
+.btn:hover .btn-arrow{transform:translateX(5px)}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px var(--pad);
+  background:linear-gradient(to bottom,rgba(14,14,14,.95) 0%,transparent 100%);
+  transition:background .3s;
+  opacity:0;animation:fadeDown .7s var(--ease) .1s both;
+}
+.nav.scrolled{background:rgba(14,14,14,.97)}
+.nav-logo{
+  font-family:var(--f-disp);font-weight:300;font-size:.95rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--text-head)
+}
+.nav-links{display:flex;gap:40px}
+.nav-links a{
+  font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text-muted);transition:color .22s
+}
+.nav-links a:hover{color:var(--text-head)}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;padding:4px}
+.nav-hamburger span{display:block;width:22px;height:1px;background:var(--text-head);transition:transform .3s,opacity .3s}
+.nav-hamburger.open span:first-child{transform:translateY(6px) rotate(45deg)}
+.nav-hamburger.open span:last-child{transform:translateY(-6px) rotate(-45deg)}
+
+/* 모바일 메뉴 */
+.nav-mobile{
+  position:fixed;inset:0;z-index:190;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .32s var(--ease)
+}
+.nav-mobile.open{opacity:1;pointer-events:auto}
+.nav-mobile ul{display:flex;flex-direction:column;align-items:center;gap:40px}
+.nav-mobile ul a{
+  font-family:var(--f-disp);font-weight:300;font-size:2rem;
+  letter-spacing:.08em;color:var(--text-head);transition:color .22s
+}
+.nav-mobile ul a:hover{color:var(--gold)}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:140px var(--pad) 100px;overflow:hidden;
+}
+/* 좌측 골드 세로선 */
+.hero::before{
+  content:'';position:absolute;top:15%;left:0;
+  width:2px;height:0;
+  background:linear-gradient(to bottom,transparent,var(--gold) 40%,transparent);
+  animation:lineGrow 1.2s var(--ease) .6s forwards
+}
+/* 그레인 */
+.hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:.22;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E")
+}
+.hero>*{position:relative;z-index:1}
+
+.hero-label{display:flex;align-items:center;gap:12px;margin-bottom:40px}
+.hero-label-line{width:28px;height:1px;background:var(--gold);flex-shrink:0}
+.hero-label-text{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+
+.hero-name{margin-bottom:48px}
+.hero-name-kr{
+  display:block;font-family:var(--f-kr-s);font-weight:300;
+  font-size:clamp(3rem,7vw,6rem);color:var(--text-head);
+  letter-spacing:.06em;line-height:1;margin-bottom:8px
+}
+.hero-name-en{
+  display:block;font-family:var(--f-disp);font-style:italic;font-weight:300;
+  font-size:clamp(1.1rem,2.2vw,1.85rem);color:var(--text-muted);
+  letter-spacing:.26em;text-transform:uppercase
+}
+
+.hero-tagline{max-width:700px;margin-bottom:72px}
+.hero-tagline-head{
+  display:block;font-family:var(--f-disp);font-weight:300;
+  font-size:clamp(1.35rem,2.4vw,2.05rem);color:var(--text-head);
+  line-height:1.45;margin-bottom:20px
+}
+.hero-tagline-body{
+  font-family:var(--f-kr);font-weight:300;
+  font-size:clamp(.8rem,1.1vw,.88rem);color:var(--text-body);
+  line-height:1.95;letter-spacing:.04em
+}
+.hero-tagline-body em{font-style:normal;color:var(--text-head)}
+
+.hero-stats{display:flex;margin-bottom:56px}
+.hero-stat{flex:1;max-width:190px;padding:22px 32px 22px 0;border-right:1px solid var(--border)}
+.hero-stat:last-child{border-right:none}
+.hero-stat-num{
+  display:block;font-family:var(--f-disp);font-style:italic;font-weight:300;
+  font-size:clamp(1.9rem,3.2vw,2.7rem);color:var(--gold);line-height:1;margin-bottom:7px
+}
+.hero-stat-lbl{
+  display:block;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted)
+}
+
+.hero-lang{display:flex;align-items:center;gap:10px;margin-bottom:56px}
+.hero-lang-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.65;flex-shrink:0}
+.hero-lang-text{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted)}
+
+.hero-ticker{
+  margin-bottom:64px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,black 6%,black 94%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0%,black 6%,black 94%,transparent 100%)
+}
+.hero-ticker-track{
+  display:flex;gap:10px;width:max-content;
+  animation:ticker 30s linear infinite
+}
+.hero-ticker-track:hover{animation-play-state:paused}
+.hero-badge{
+  flex-shrink:0;padding:6px 14px;border:1px solid var(--border);
+  font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text-muted);white-space:nowrap;cursor:default;
+  transition:border-color .22s,color .22s
+}
+.hero-badge:hover{border-color:var(--gold);color:var(--gold)}
+
+.hero-cta{margin-bottom:40px}
+
+.hero-scroll{
+  position:absolute;bottom:40px;right:var(--pad);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  opacity:0;animation:fadeUp .8s var(--ease) 1.5s both
+}
+.hero-scroll-txt{
+  font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--text-muted);writing-mode:vertical-rl
+}
+.hero-scroll-line{
+  width:1px;height:36px;
+  background:linear-gradient(to bottom,var(--text-muted),transparent);
+  animation:scrollPulse 2.2s ease-in-out 2s infinite
+}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about{background:var(--surface);padding:var(--sgap) var(--pad)}
+.about .wrap{padding:0}
+
+.about-lead{
+  font-family:var(--f-kr);font-weight:300;
+  font-size:clamp(.86rem,1.15vw,.98rem);color:var(--text-body);
+  line-height:1.9;letter-spacing:.03em;
+  max-width:680px;margin-bottom:72px
+}
+
+/* 4단 Stage 그리드 */
+.about-stages{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--border);border:1px solid var(--border);
+  margin-bottom:56px
+}
+.stage{
+  background:var(--surface);padding:56px 56px;
+  transition:background .22s
+}
+.stage:hover{background:var(--surface-2)}
+.stage-num{
+  font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px
+}
+.stage-title{
+  font-family:var(--f-disp);font-weight:300;
+  font-size:clamp(1.2rem,1.9vw,1.6rem);color:var(--text-head);
+  line-height:1.3;margin-bottom:18px
+}
+.stage-body{
+  font-family:var(--f-kr);font-weight:300;font-size:.83rem;
+  color:var(--text-body);line-height:1.82;margin-bottom:20px
+}
+.stage-value{
+  font-size:.72rem;letter-spacing:.05em;color:var(--gold);
+  border-left:2px solid var(--gold);padding-left:14px
+}
+
+/* 자격 카드 */
+.cred-card{
+  border-left:3px solid var(--gold);padding:36px 48px;
+  background:var(--surface-2)
+}
+.cred-title{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:18px
+}
+.cred-list{
+  display:flex;flex-wrap:wrap;gap:6px 48px
+}
+.cred-list li{
+  font-family:var(--f-kr);font-weight:300;font-size:.83rem;
+  color:var(--text-body);line-height:1.7
+}
+
+/* ============================================================
+   CORE STRENGTH
+   ============================================================ */
+.strength{background:var(--bg);padding:var(--sgap) var(--pad)}
+.strength .wrap{padding:0}
+
+.str-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--border);border:1px solid var(--border)
+}
+.str-card{
+  background:var(--bg);padding:48px 44px;
+  position:relative;transition:background .22s;overflow:hidden
+}
+.str-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold);transform:scaleX(0);transform-origin:left;
+  transition:transform .32s var(--ease)
+}
+.str-card:hover{background:var(--surface)}
+.str-card:hover::after{transform:scaleX(1)}
+.str-num{
+  font-family:var(--f-disp);font-style:italic;font-size:.88rem;
+  color:var(--text-muted);margin-bottom:18px
+}
+.str-title{
+  font-weight:500;font-size:.93rem;color:var(--text-head);margin-bottom:6px
+}
+.str-sub{font-family:var(--f-kr);font-size:.76rem;color:var(--gold);margin-bottom:10px}
+.str-keys{
+  font-size:.63rem;letter-spacing:.12em;color:var(--text-muted);
+  margin-bottom:16px
+}
+.str-body{
+  font-family:var(--f-kr);font-weight:300;font-size:.81rem;
+  color:var(--text-body);line-height:1.78
+}
+
+/* ============================================================
+   BY THE NUMBERS
+   ============================================================ */
+.numbers{background:var(--surface);padding:var(--sgap) var(--pad)}
+.numbers .wrap{padding:0}
+
+.kpi-map{border-top:1px solid var(--border);margin-bottom:72px}
+.kpi-row{
+  display:flex;align-items:center;gap:32px;
+  padding:20px 0;border-bottom:1px solid var(--border);
+  transition:padding .22s,background .22s
+}
+.kpi-row:hover{background:var(--surface-2);padding-left:16px;padding-right:16px;margin:0 -16px}
+.kpi-type{
+  font-family:var(--f-kr);font-weight:400;font-size:.85rem;
+  color:var(--text-head);min-width:180px
+}
+.kpi-arrow{color:var(--gold);flex-shrink:0}
+.kpi-metric{
+  font-family:var(--f-kr);font-weight:300;font-size:.83rem;color:var(--text-body)
+}
+
+.num-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);border:1px solid var(--border)
+}
+.num-card{
+  background:var(--surface);padding:44px 32px;text-align:center;
+  transition:background .22s
+}
+.num-card:hover{background:var(--surface-2)}
+.num-val{
+  display:block;font-family:var(--f-disp);font-style:italic;font-weight:300;
+  font-size:clamp(1.8rem,2.8vw,2.6rem);color:var(--gold);
+  line-height:1;margin-bottom:12px
+}
+.num-lbl{
+  display:block;font-family:var(--f-kr);font-weight:300;font-size:.74rem;
+  color:var(--text-muted);line-height:1.6;letter-spacing:.04em
+}
+.num-lbl small{display:block;font-size:.7em;opacity:.7;margin-top:4px}
+
+/* ============================================================
+   PROJECTS
+   ============================================================ */
+.projects{background:var(--bg);padding:var(--sgap) var(--pad)}
+.projects.alt{background:var(--surface)}
+.projects .wrap{padding:0}
+
+.proj-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--border);border:1px solid var(--border)
+}
+
+.proj-card{
+  background:var(--bg);display:flex;flex-direction:column;
+  transition:background .22s
+}
+.projects.alt .proj-card{background:var(--surface)}
+.proj-card:hover{background:var(--surface)}
+.projects.alt .proj-card:hover{background:var(--surface-2)}
+
+/* 이미지 영역
+   [이미지 교체] 각 카드의 style="background-image:url('경로')" 교체 */
+.proj-img{
+  aspect-ratio:16/9;
+  background-color:var(--surface-2);
+  background-size:cover;background-position:center;
+  position:relative;overflow:hidden
+}
+.proj-img-ph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);
+  border:1px dashed var(--border-2)
+}
+
+.proj-body{padding:44px 48px;flex:1;display:flex;flex-direction:column}
+.proj-meta{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.proj-idx{
+  font-family:var(--f-disp);font-style:italic;font-size:.88rem;color:var(--text-muted)
+}
+.proj-tag{
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);
+  border:1px solid var(--border);padding:3px 10px
+}
+.proj-title{
+  font-family:var(--f-disp);font-weight:300;
+  font-size:clamp(1.35rem,2vw,1.85rem);color:var(--text-head);
+  line-height:1.2;margin-bottom:4px
+}
+.proj-year{
+  font-size:.68rem;letter-spacing:.12em;color:var(--text-muted);margin-bottom:10px
+}
+.proj-scale{
+  font-family:var(--f-kr);font-size:.81rem;color:var(--gold);
+  margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)
+}
+.proj-list{flex:1;margin-bottom:28px}
+.proj-list li{
+  font-family:var(--f-kr);font-weight:300;font-size:.81rem;
+  color:var(--text-body);line-height:1.72;
+  padding-left:20px;position:relative;margin-bottom:6px
+}
+.proj-list li::before{content:'—';position:absolute;left:0;color:var(--text-muted)}
+.proj-link{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-muted);margin-top:auto;transition:color .22s
+}
+.proj-link:hover{color:var(--gold)}
+
+/* ============================================================
+   EXPERTISE — ACCORDION
+   ============================================================ */
+.expertise{background:var(--bg);padding:var(--sgap) var(--pad)}
+.expertise .wrap{padding:0}
+
+.accordion{border-top:1px solid var(--border)}
+.acc-item{border-bottom:1px solid var(--border)}
+
+.acc-trigger{
+  width:100%;display:flex;align-items:center;gap:24px;
+  padding:28px 0;text-align:left;transition:color .22s
+}
+.acc-trigger:hover{color:var(--text-head)}
+.acc-idx{
+  font-family:var(--f-disp);font-style:italic;font-size:.88rem;
+  color:var(--text-muted);min-width:28px;flex-shrink:0
+}
+.acc-name{
+  font-family:var(--f-kr-s);font-weight:300;
+  font-size:clamp(.95rem,1.4vw,1.15rem);color:var(--text-head);flex:1
+}
+.acc-icon{
+  width:18px;height:18px;flex-shrink:0;margin-left:auto;position:relative
+}
+.acc-icon::before,.acc-icon::after{
+  content:'';position:absolute;background:var(--text-muted);transition:transform .28s,opacity .28s
+}
+.acc-icon::before{width:14px;height:1px;top:50%;left:2px;transform:translateY(-50%)}
+.acc-icon::after{width:1px;height:14px;left:50%;top:2px;transform:translateX(-50%)}
+.acc-trigger[aria-expanded="true"] .acc-icon::after{transform:translateX(-50%) rotate(90deg);opacity:0}
+.acc-trigger[aria-expanded="true"] .acc-name{color:var(--gold)}
+
+.acc-panel{overflow:hidden;display:none}
+.acc-panel.open{display:block}
+.acc-content{padding:0 0 36px calc(28px + 24px)}
+.acc-sub{
+  font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:6px;margin-top:20px
+}
+.acc-sub:first-child{margin-top:0}
+.acc-text{
+  font-family:var(--f-kr);font-weight:300;font-size:.83rem;
+  color:var(--text-body);line-height:1.82
+}
+
+/* ============================================================
+   PHILOSOPHY
+   ============================================================ */
+.philosophy{background:var(--bg);padding:var(--sgap) var(--pad);text-align:center}
+.philosophy .wrap{padding:0}
+.philosophy .sec-head{margin-bottom:64px}
+
+.phil-body{max-width:700px;margin:0 auto 56px}
+.phil-p{
+  font-family:var(--f-kr);font-weight:300;
+  font-size:clamp(.86rem,1.15vw,.97rem);color:var(--text-body);
+  line-height:1.95;letter-spacing:.03em;
+  margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--border)
+}
+.phil-p:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+
+.phil-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 24px}
+.phil-tag{
+  font-family:var(--f-kr);font-size:.78rem;color:var(--text-muted);letter-spacing:.1em
+}
+.phil-tag+.phil-tag::before{content:'·';margin-right:24px;color:var(--border-2)}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact{background:var(--surface);padding:var(--sgap) var(--pad);text-align:center}
+.contact .wrap{padding:0}
+
+.contact-title{
+  font-family:var(--f-disp);font-weight:300;
+  font-size:clamp(2rem,3.8vw,3.2rem);color:var(--text-head);margin-bottom:24px
+}
+.contact-body{
+  font-family:var(--f-kr);font-weight:300;
+  font-size:clamp(.84rem,1.15vw,.95rem);color:var(--text-body);
+  line-height:1.9;margin-bottom:64px
+}
+.contact-info{display:flex;justify-content:center;gap:72px;margin-bottom:64px}
+.contact-link{display:flex;flex-direction:column;gap:6px;transition:color .22s}
+.contact-link:hover{color:var(--gold)}
+.contact-lbl{
+  font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted)
+}
+.contact-val{font-family:var(--f-kr);font-size:1rem;color:var(--text-head)}
+.contact-cta{display:flex;justify-content:center}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--border);
+  padding:32px var(--pad);
+  display:flex;justify-content:space-between;align-items:center
+}
+.footer-copy{font-size:.68rem;letter-spacing:.12em;color:var(--text-muted)}
+.footer-top a{
+  font-size:.68rem;letter-spacing:.12em;color:var(--text-muted);transition:color .22s
+}
+.footer-top a:hover{color:var(--gold)}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:1024px){
+  :root{--pad:40px;--sgap:96px}
+  .str-grid{grid-template-columns:repeat(2,1fr)}
+  .num-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-stat{max-width:none;padding-right:24px}
+}
+
+@media(max-width:768px){
+  :root{--pad:20px;--sgap:72px}
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+  .hero{padding-top:100px;padding-bottom:80px}
+  .hero::before{display:none}
+  .hero-stats{
+    display:grid;grid-template-columns:1fr 1fr;
+    max-width:100%;margin-bottom:48px
+  }
+  .hero-stat{
+    max-width:100%;padding:18px 16px;
+    border-right:1px solid var(--border);border-bottom:1px solid var(--border)
+  }
+  .hero-stat:nth-child(2){border-right:none}
+  .hero-stat:nth-child(3){border-bottom:none}
+  .hero-stat:nth-child(4){border-right:none;border-bottom:none}
+  .hero-scroll{display:none}
+  .about-stages{grid-template-columns:1fr}
+  .stage{padding:40px 28px}
+  .str-grid{grid-template-columns:1fr}
+  .num-grid{grid-template-columns:1fr 1fr}
+  .proj-grid{grid-template-columns:1fr}
+  .proj-body{padding:32px 24px}
+  .kpi-row{flex-wrap:wrap;gap:4px}
+  .kpi-type{min-width:auto;width:100%}
+  .kpi-arrow{display:none}
+  .contact-info{flex-direction:column;align-items:center;gap:36px}
+}
+
+@media(max-width:480px){
+  .hero{padding-top:88px}
+  .num-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav" id="nav">
+  <p class="nav-logo">YEH</p>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#strength">Strength</a></li>
+    <li><a href="#numbers">Numbers</a></li>
+    <li><a href="#projects-01">Projects</a></li>
+    <li><a href="#expertise">Expertise</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="메뉴">
+    <span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#strength">Strength</a></li>
+    <li><a href="#numbers">Numbers</a></li>
+    <li><a href="#projects-01">Projects</a></li>
+    <li><a href="#expertise">Expertise</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</div>
+
+
+<!-- ============================================================
+     01. HERO
+     ============================================================ -->
+<section class="hero" id="hero">
+
+  <div class="hero-label u-fade" style="animation-delay:.30s">
+    <span class="hero-label-line"></span>
+    <span class="hero-label-text">Event Operations Specialist · Experience Director</span>
+  </div>
+
+  <div class="hero-name u-fade" style="animation-delay:.44s">
+    <span class="hero-name-kr">여은혜</span>
+    <span class="hero-name-en">Yeo Eunhye</span>
+  </div>
+
+  <div class="hero-tagline u-fade" style="animation-delay:.58s">
+    <span class="hero-tagline-head">매순간 구조를 업그레이드하고<br>결과로 증명해왔습니다.</span>
+    <p class="hero-tagline-body">
+      <em>넓은 시야, 제안력과 판단력, 디테일, 미적 감각</em> —<br>
+      현장의 모든 요소를 직접 다루며<br>
+      브랜딩과 세일즈까지 구조적으로 설계해온 실행 중심형 프로젝트 디렉터입니다.
+    </p>
+  </div>
+
+  <div class="hero-stats u-fade" style="animation-delay:.72s">
+    <div class="hero-stat">
+      <span class="hero-stat-num">18+</span>
+      <span class="hero-stat-lbl">Years Experience</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">1,000+</span>
+      <span class="hero-stat-lbl">Events</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">3.15M</span>
+      <span class="hero-stat-lbl">Visitors</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">300%</span>
+      <span class="hero-stat-lbl">Revenue Growth</span>
+    </div>
+  </div>
+
+  <div class="hero-lang u-fade" style="animation-delay:.84s">
+    <span class="hero-lang-dot"></span>
+    <span class="hero-lang-text">Korean · Japanese · English</span>
+  </div>
+
+  <div class="hero-ticker u-fade" style="animation-delay:.94s">
+    <div class="hero-ticker-track">
+      <span class="hero-badge">Concerts</span>
+      <span class="hero-badge">Festivals</span>
+      <span class="hero-badge">Awards</span>
+      <span class="hero-badge">Pop-ups</span>
+      <span class="hero-badge">Branding</span>
+      <span class="hero-badge">F&amp;B</span>
+      <span class="hero-badge">Conferences</span>
+      <span class="hero-badge">Exhibitions</span>
+      <span class="hero-badge">VIP Protocol</span>
+      <span class="hero-badge">International</span>
+      <span class="hero-badge">Global Projects</span>
+      <span class="hero-badge">Experience Design</span>
+      <!-- 루프 복사본 -->
+      <span class="hero-badge" aria-hidden="true">Concerts</span>
+      <span class="hero-badge" aria-hidden="true">Festivals</span>
+      <span class="hero-badge" aria-hidden="true">Awards</span>
+      <span class="hero-badge" aria-hidden="true">Pop-ups</span>
+      <span class="hero-badge" aria-hidden="true">Branding</span>
+      <span class="hero-badge" aria-hidden="true">F&amp;B</span>
+      <span class="hero-badge" aria-hidden="true">Conferences</span>
+      <span class="hero-badge" aria-hidden="true">Exhibitions</span>
+      <span class="hero-badge" aria-hidden="true">VIP Protocol</span>
+      <span class="hero-badge" aria-hidden="true">International</span>
+      <span class="hero-badge" aria-hidden="true">Global Projects</span>
+      <span class="hero-badge" aria-hidden="true">Experience Design</span>
+    </div>
+  </div>
+
+  <div class="hero-cta u-fade" style="animation-delay:1.04s">
+    <a href="#projects-01" class="btn btn--gold">
+      <span>포트폴리오 보기</span>
+      <span class="btn-arrow">→</span>
+    </a>
+  </div>
+
+  <div class="hero-scroll">
+    <span class="hero-scroll-txt">Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     02. ABOUT
+     ============================================================ -->
+<section class="about section" id="about">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">About</p>
+    <h2 class="sec-title">요령이 아닌 진심으로,<br>구조를 설계하고 결과로 증명합니다.</h2>
+  </div>
+
+  <p class="about-lead u-reveal">
+    1,000회 이상의 현장에서 쌓아온 경험은 단순한 스펙이 아닙니다.<br>
+    현장의 모든 포지션을 직접 경험하며 구조를 이해하고,<br>
+    사람을 읽고 결과를 만드는 방식을 체득해왔습니다.
+  </p>
+
+  <div class="about-stages">
+    <div class="stage u-reveal">
+      <p class="stage-num">Stage 01</p>
+      <h3 class="stage-title">무대에서 시작된<br>거시적 시야</h3>
+      <p class="stage-body">연기를 전공하며 연출·조명·음향·영상 전 과정을 경험했습니다. 무대 위와 아래를 모두 경험하며 현장이 유기적으로 작동하는 구조를 이해했습니다.</p>
+      <p class="stage-value">공간과 흐름 전체를 읽고 설계하는 디렉터의 시야</p>
+    </div>
+    <div class="stage u-reveal">
+      <p class="stage-num">Stage 02</p>
+      <h3 class="stage-title">한계를 돌파하며<br>세운 글로벌 스탠다드</h3>
+      <p class="stage-body">일본 15년 만의 첫 외국인 채용, 뉴질랜드 최대 엔터테인먼트 그룹 SkyCity 7단계 전형 통과. 언어를 넘어 문화까지 체화한 글로벌 인사이트를 쌓았습니다.</p>
+      <p class="stage-value">언어를 넘어 문화까지 체화한 글로벌 인사이트</p>
+    </div>
+    <div class="stage u-reveal">
+      <p class="stage-num">Stage 03</p>
+      <h3 class="stage-title">1,000회 현장에서<br>구축한 운영 지능</h3>
+      <p class="stage-body">콘서트, 국제포럼, 브랜드 팝업, VIP 의전, 어린이 행사까지 성격이 다른 1,000여 개 현장. 매 순간 구조를 개선하고 시스템으로 축적해왔습니다.</p>
+      <p class="stage-value">현장에 맞춰 구조를 최적화하는 운영 설계 능력</p>
+    </div>
+    <div class="stage u-reveal">
+      <p class="stage-num">Stage 04</p>
+      <h3 class="stage-title">실무를 아는 기획자의<br>현실적 설계</h3>
+      <p class="stage-body">사람의 동선, 공간의 구조, 변수까지 고려한 데이터 기반 기획. 운영자를 넘어 결과를 만들어내는 프로젝트 디렉터로 성장했습니다.</p>
+      <p class="stage-value">운영자를 넘어 결과를 만들어내는 프로젝트 디렉터</p>
+    </div>
+  </div>
+
+  <div class="cred-card u-reveal">
+    <h3 class="cred-title">Education &amp; Certifications</h3>
+    <ul class="cred-list">
+      <li>백제예술대학교 방송연예과 — 연기·조명·음향·연출·영상</li>
+      <li>일본어능력시험 JLPT 1급</li>
+      <li>한국사능력시험 1급</li>
+      <li>공연기획사 1급 · CS강사 1급 · 조주기능사</li>
+      <li>컨벤션기획사 2급 필기합격 (실기 준비 중)</li>
+      <li>안전총괄책임자 / 안전관리담당자 교육 수료</li>
+    </ul>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ============================================================
+     03. CORE STRENGTH
+     ============================================================ -->
+<section class="strength section" id="strength">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">Core Strength</p>
+    <h2 class="sec-title">검증된 역량</h2>
+    <p class="sec-sub">사람을 알기에 세일즈의 방향을 설정하고,<br>현장을 알기에 구조를 설계하며,<br>브랜드가 원하는 성과를 만듭니다.</p>
+  </div>
+
+  <div class="str-grid">
+    <div class="str-card u-reveal">
+      <p class="str-num">01</p>
+      <h3 class="str-title">Experience Architecture</h3>
+      <p class="str-sub">경험 설계력</p>
+      <p class="str-keys">Flow · Experience · Conversion</p>
+      <p class="str-body">동선·인력·공간·콘텐츠를 하나의 흐름으로 연결해 방문객이 브랜드를 온몸으로 기억하게 만듭니다.</p>
+    </div>
+    <div class="str-card u-reveal">
+      <p class="str-num">02</p>
+      <h3 class="str-title">Brand Sensibility</h3>
+      <p class="str-sub">브랜드 감각</p>
+      <p class="str-keys">Tone · Detail · Consistency</p>
+      <p class="str-body">스태프의 말투, 공간 배치, 리워드 타이밍까지 브랜드 메시지가 현장 전체에 스며들도록 설계합니다.</p>
+    </div>
+    <div class="str-card u-reveal">
+      <p class="str-num">03</p>
+      <h3 class="str-title">Field Intelligence</h3>
+      <p class="str-sub">현장 판단력</p>
+      <p class="str-keys">Insight · Perspective · Decision</p>
+      <p class="str-body">1,000회 이상의 현장 경험이 쌓은 빠른 판단과 상황을 구조적으로 읽는 시야로 문제를 해결합니다.</p>
+    </div>
+    <div class="str-card u-reveal">
+      <p class="str-num">04</p>
+      <h3 class="str-title">Problem Solving</h3>
+      <p class="str-sub">문제 해결력</p>
+      <p class="str-keys">Idea · Alternative · Execution</p>
+      <p class="str-body">현장에서 발견한 비효율을 즉각 개선하고 다음 현장의 시스템으로 적용하는 실행 중심 사고.</p>
+    </div>
+    <div class="str-card u-reveal">
+      <p class="str-num">05</p>
+      <h3 class="str-title">Global Communication</h3>
+      <p class="str-sub">글로벌 소통력</p>
+      <p class="str-keys">Language · Culture · Trust</p>
+      <p class="str-body">한국어·일본어·영어, 4개국 거주 경험. 언어를 넘어 문화적 맥락으로 신뢰를 만듭니다.</p>
+    </div>
+    <div class="str-card u-reveal">
+      <p class="str-num">06</p>
+      <h3 class="str-title">Leadership &amp; Safety Control</h3>
+      <p class="str-sub">리더십 &amp; 안전 관리</p>
+      <p class="str-keys">Direction · Control · Safety · Result</p>
+      <p class="str-body">315만 명 무사고 달성 포함. 대규모 인파와 안전을 동시에 설계하는 현장 컨트롤 역량.</p>
+    </div>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ============================================================
+     04. BY THE NUMBERS
+     ============================================================ -->
+<section class="numbers section" id="numbers">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">By the Numbers</p>
+    <h2 class="sec-title">숫자로 증명된 커리어</h2>
+    <p class="sec-sub">행사의 목적에 따라 KPI는 달라집니다.<br>저는 그 기준을 빠르게 파악하고 현장 운영을 결과로 연결해왔습니다.</p>
+  </div>
+
+  <div class="kpi-map u-reveal">
+    <div class="kpi-row"><span class="kpi-type">공공 · 재단 행사</span><span class="kpi-arrow">→</span><span class="kpi-metric">만족도 · 참여율 · 재참여 의향</span></div>
+    <div class="kpi-row"><span class="kpi-type">팝업 · 브랜드</span><span class="kpi-arrow">→</span><span class="kpi-metric">방문객 수 · 구매전환율 · 매출</span></div>
+    <div class="kpi-row"><span class="kpi-type">신제품 · 론칭</span><span class="kpi-arrow">→</span><span class="kpi-metric">SNS 참여율 · 해시태그 · 도달</span></div>
+    <div class="kpi-row"><span class="kpi-type">페스티벌 · 축제</span><span class="kpi-arrow">→</span><span class="kpi-metric">방문객 수 · 체류시간 · 재방문 의향</span></div>
+    <div class="kpi-row"><span class="kpi-type">대형 공연</span><span class="kpi-arrow">→</span><span class="kpi-metric">안전사고 0건 · 동선 · 응급 대응 속도</span></div>
+  </div>
+
+  <div class="num-grid">
+    <div class="num-card u-reveal"><span class="num-val">18+</span><span class="num-lbl">경력 연수</span></div>
+    <div class="num-card u-reveal"><span class="num-val">1,000+</span><span class="num-lbl">총 운영 행사</span></div>
+    <div class="num-card u-reveal"><span class="num-val">315만</span><span class="num-lbl">누적 방문객<small>서울라이트 광화문 2025</small></span></div>
+    <div class="num-card u-reveal"><span class="num-val">0건</span><span class="num-lbl">안전사고<small>서울라이트 광화문 2025</small></span></div>
+    <div class="num-card u-reveal"><span class="num-val">50,000</span><span class="num-lbl">단일 팝업 방문객<small>스크럽대디 2025</small></span></div>
+    <div class="num-card u-reveal"><span class="num-val">300%</span><span class="num-lbl">팝업 매출 상승<small>스크럽대디</small></span></div>
+    <div class="num-card u-reveal"><span class="num-val">500명</span><span class="num-lbl">최대 스태프 운영<small>현대차 패밀리데이</small></span></div>
+    <div class="num-card u-reveal"><span class="num-val">5년</span><span class="num-lbl">연속 나라장터 총괄<small>2022–2026</small></span></div>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ============================================================
+     05. SELECTED PROJECTS 01
+     ============================================================ -->
+<section class="projects section" id="projects-01">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">Selected Projects 01</p>
+    <h2 class="sec-title">Designed &amp; Delivered</h2>
+    <p class="sec-sub">현장을 직접 설계하고 성과를 만든 프로젝트.<br>경험은 설계될 수 있고, 잘 설계된 경험은 반드시 성과로 이어집니다.</p>
+  </div>
+
+  <div class="proj-grid">
+
+    <!-- 카드 01 -->
+    <!-- [이미지 교체] style="background-image:url('이미지경로')" -->
+    <article class="proj-card u-reveal">
+      <div class="proj-img">
+        <span class="proj-img-ph">Image Coming Soon</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-meta">
+          <span class="proj-idx">01</span>
+          <span class="proj-tag">공공행사 · 인파관리 · 안전</span>
+        </div>
+        <h3 class="proj-title">서울라이트 광화문</h3>
+        <p class="proj-year">2025</p>
+        <p class="proj-scale">누적 방문객 315만 명 · 24일 운영 · 전 기간 무사고</p>
+        <ul class="proj-list">
+          <li>전년 대비 4.2배 방문객 증가 속 무사고 달성</li>
+          <li>실시간 인력 재배치 전략으로 운영 안정화</li>
+          <li>소원타일 24,228개 운영 구조 직접 설계</li>
+        </ul>
+        <a href="projects/project-01.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+    <!-- 카드 02 -->
+    <article class="proj-card u-reveal">
+      <div class="proj-img">
+        <span class="proj-img-ph">Image Coming Soon</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-meta">
+          <span class="proj-idx">02</span>
+          <span class="proj-tag">브랜드 팝업 · 매출 · 글로벌</span>
+        </div>
+        <h3 class="proj-title">Scrub Daddy Pop-up</h3>
+        <p class="proj-year">더현대서울 · 2025</p>
+        <p class="proj-scale">1주일 방문객 50,000명 · 매출 300% 상승</p>
+        <ul class="proj-list">
+          <li>운영 구조 개선으로 첫날 대비 매출 300% 달성</li>
+          <li>미국 본사 "글로벌 스탠다드 상회" 극찬</li>
+          <li>클라이언트 재계약 확정</li>
+        </ul>
+        <a href="projects/project-02.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+    <!-- 카드 03 -->
+    <article class="proj-card u-reveal">
+      <div class="proj-img">
+        <span class="proj-img-ph">Image Coming Soon</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-meta">
+          <span class="proj-idx">03</span>
+          <span class="proj-tag">체험형 팝업 · 세계관 · 바이럴</span>
+        </div>
+        <h3 class="proj-title">크런키 스트레스 타파학원</h3>
+        <p class="proj-year">2026</p>
+        <p class="proj-scale">세계관 기반 몰입형 체험 콘텐츠 구조 설계</p>
+        <ul class="proj-list">
+          <li>배역 기반 스태프 퍼포먼스로 현장 에너지 극대화</li>
+          <li>행사 기간 연장 및 자발적 SNS 바이럴 확산</li>
+        </ul>
+        <a href="projects/project-03.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+    <!-- 카드 04 -->
+    <article class="proj-card u-reveal">
+      <div class="proj-img">
+        <span class="proj-img-ph">Image Coming Soon</span>
+      </div>
+      <div class="proj-body">
+        <div class="proj-meta">
+          <span class="proj-idx">04</span>
+          <span class="proj-tag">브랜드 팝업 · 세일즈 · 업셀링</span>
+        </div>
+        <h3 class="proj-title">Refill'd Pop-up</h3>
+        <p class="proj-year">현대백화점 천호 · 2025</p>
+        <p class="proj-scale">상담 기반 구매 전환 구조 설계 · 업셀링 견인</p>
+        <ul class="proj-list">
+          <li>고관여 타겟 세일즈 전략으로 매출 상승 직접 견인</li>
+          <li>VIP 체험 확장으로 브랜드 자산 가치 상승 기여</li>
+        </ul>
+        <a href="projects/project-04.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+  </div>
+</div>
+</section>
+
+
+<!-- ============================================================
+     06. SELECTED PROJECTS 02
+     ============================================================ -->
+<section class="projects alt section" id="projects-02">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">Selected Projects 02</p>
+    <h2 class="sec-title">Scale &amp; Impact</h2>
+    <p class="sec-sub">대규모 운영과 국가적·VIP 프로젝트.<br>대형 현장은 수많은 변수 속에서 어떻게 대응하느냐가 핵심입니다.</p>
+  </div>
+
+  <div class="proj-grid">
+
+    <article class="proj-card u-reveal">
+      <div class="proj-img"><span class="proj-img-ph">Image Coming Soon</span></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="proj-idx">05</span><span class="proj-tag">대형 공연 · 팬데믹 · 무사고</span></div>
+        <h3 class="proj-title">미스터트롯 콘서트</h3>
+        <p class="proj-year">KSPO DOME · 2020</p>
+        <p class="proj-scale">15회 공연 · 7~8만 명 · 세계 최초 팬데믹 유관중 공연</p>
+        <ul class="proj-list">
+          <li>그라운드 총괄 — 방역·안전·운영 3중 구조 설계</li>
+          <li>공연계 재개의 표준 정립</li>
+        </ul>
+        <a href="projects/project-05.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+    <article class="proj-card u-reveal">
+      <div class="proj-img"><span class="proj-img-ph">Image Coming Soon</span></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="proj-idx">06</span><span class="proj-tag">국가 행사 · VIP 의전</span></div>
+        <h3 class="proj-title">청와대 국민의 품으로</h3>
+        <p class="proj-year">2022</p>
+        <p class="proj-scale">74년 만의 청와대 민간 개방 · 첫날 1만 명</p>
+        <ul class="proj-list">
+          <li>춘추관 전체 총괄 운영 팀장</li>
+          <li>국가적 관심 집중 민감 현장 안정적 통제</li>
+        </ul>
+        <a href="projects/project-06.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+    <article class="proj-card u-reveal">
+      <div class="proj-img"><span class="proj-img-ph">Image Coming Soon</span></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="proj-idx">07</span><span class="proj-tag">글로벌 VVIP · 시상식</span></div>
+        <h3 class="proj-title">AFC Annual Awards Seoul</h3>
+        <p class="proj-year">2023</p>
+        <p class="proj-scale">FIFA 회장 · 사우디/카타르 왕실 · 손흥민 참석</p>
+        <ul class="proj-list">
+          <li>공식 Supervisor — 글로벌 VVIP 현장 운영</li>
+          <li>최상위 프로토콜 환경 안정적 매니지먼트</li>
+        </ul>
+        <a href="projects/project-07.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+    <article class="proj-card u-reveal">
+      <div class="proj-img"><span class="proj-img-ph">Image Coming Soon</span></div>
+      <div class="proj-body">
+        <div class="proj-meta"><span class="proj-idx">08</span><span class="proj-tag">기업 행사 · 대규모 인력</span></div>
+        <h3 class="proj-title">현대자동차 패밀리데이</h3>
+        <p class="proj-year">2024–2025</p>
+        <p class="proj-scale">여의도 1.1배 규모 · 스태프 약 500명</p>
+        <ul class="proj-list">
+          <li>하이레벨 보안 환경 인력 운영 구조 재정렬</li>
+          <li>체계적 인력 운영으로 최고 난도 현장 완수</li>
+        </ul>
+        <a href="projects/project-08.html" class="proj-link">상세 보기 →</a>
+      </div>
+    </article>
+
+  </div>
+</div>
+</section>
+
+
+<!-- ============================================================
+     07. EXPERTISE — ACCORDION
+     ============================================================ -->
+<section class="expertise section" id="expertise">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">Expertise</p>
+    <h2 class="sec-title">전문 분야</h2>
+  </div>
+
+  <div class="accordion" id="accordion">
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc1">
+        <span class="acc-idx">01</span>
+        <span class="acc-name">콘서트 · 공연 · 페스티벌</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc1">
+        <div class="acc-content">
+          <p class="acc-sub">국내 콘서트</p>
+          <p class="acc-text">나훈아, 김호중, 미스터트롯, 박효신, 정동원, 임창정, 이소라, 10CM, 윤하, 에릭남, FT아일랜드, 엔플라잉, 몬스타엑스 외 다수</p>
+          <p class="acc-sub">내한 공연</p>
+          <p class="acc-text">U2, 빌리 아일리시, 마룬5, 찰리 푸스, 더 체인스모커스, 한스 짐머, 션 멘데스, 케니 지, 에이셉 라키, 제이슨 므라즈, 알란 워커, 트로이 시반 외 다수</p>
+          <p class="acc-sub">뮤직 페스티벌</p>
+          <p class="acc-text">이슬라이브 페스티벌 (5년 연속), S2O 송크란 뮤직 페스티벌, 싸이 흠뻑쇼 전국 투어, 워터밤, 월드디제이페스티벌 외 다수</p>
+          <p class="acc-sub">지역축제 · 시즌 행사</p>
+          <p class="acc-text">서울라이트 광화문 2025, DDP 서울라이트, 행주문화제, 서울거리예술축제, DMZ영화제, 창경궁 야연 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc2">
+        <span class="acc-idx">02</span>
+        <span class="acc-name">팬덤 · 시상식 · 엔터테인먼트</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc2">
+        <div class="acc-content">
+          <p class="acc-sub">팬미팅 · 팬사인회 · 쇼케이스 (300회+)</p>
+          <p class="acc-text">세븐틴, 트와이스, 스트레이 키즈, TXT, ATEEZ, ENHYPEN, aespa, 케플러, SF9, AB6IX, CIX 외 다수</p>
+          <p class="acc-sub">시상식 · 어워즈</p>
+          <p class="acc-text">골든디스크어워즈 (5년), 백상예술대상 (5년), AAA 아시아아티스트어워즈, AFC Annual Awards Seoul 2023, 더팩트뮤직어워즈 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc3">
+        <span class="acc-idx">03</span>
+        <span class="acc-name">브랜드 팝업 &amp; 체험 이벤트</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc3">
+        <div class="acc-content">
+          <p class="acc-sub">브랜드 팝업</p>
+          <p class="acc-text">스크럽대디 'Sweet Scrub Shop', 크런키 스트레스 타파 학원, Refill'd 팝업, 대한민국 구석구석 우체국, NCT 성수 전시 외 다수</p>
+          <p class="acc-sub">체험형 이벤트 · 캠페인</p>
+          <p class="acc-text">군부대 야시장, 전통시장 살리기 프로모션, CGV 그린시네마, 서울 보드게임 페스타 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc4">
+        <span class="acc-idx">04</span>
+        <span class="acc-name">기업 · 브랜드 행사</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc4">
+        <div class="acc-content">
+          <p class="acc-text">현대자동차 패밀리데이, Volkswagen Media Day &amp; Forest, 신한은행 40주년, 삼성창업놀이터, 구글 클라우드 이노베이션 데이, 암웨이 National Convention, 크래프톤 사내행사, 멀츠 갈라디너, 미쉐린 코리아 NEW YEAR EVENT, 현대카드 다빈치모텔, Peggy Gou MOTZ 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc5">
+        <span class="acc-idx">05</span>
+        <span class="acc-name">전시 · 박람회 · 엑스포</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc5">
+        <div class="acc-content">
+          <p class="acc-text">코리아 나라장터 엑스포 2022–2026 (5년 연속 총괄), K-Display 2022–2024, ENVEX 2021–2024, 서울패션위크 트레이드쇼 2025–2026, AI EXPO KOREA 2023, KMF 2024, KOBA 2024, FIX 2024, Smart Life Week 2025, 서울팝콘 2025, G-BIO WEEK × AI CONNECT × G-FAIR 2025, 세계보안엑스포 2026 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc6">
+        <span class="acc-idx">06</span>
+        <span class="acc-name">국제회의 · 포럼 · 컨퍼런스</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc6">
+        <div class="acc-content">
+          <p class="acc-text">아시안 리더십 컨퍼런스 2022–2023, G20 글로벌 금융안정 컨퍼런스, CIMUSET Seoul 2023, Trans-Pacific Sustainability Dialogue 2023, 열린 혁신 정책플랫폼 글로벌 컨퍼런스 2021–2024, KDI 세미나, 전경련 컨퍼런스, IMPACT STARTUP DAY 2025 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc7">
+        <span class="acc-idx">07</span>
+        <span class="acc-name">정부 · 공공 · VIP 의전</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc7">
+        <div class="acc-content">
+          <p class="acc-text">청와대 국민의 품으로, 2024 과학·정보통신의 날 기념식, 재외공관장-기업인 상담회, 제31차 한일포럼, 한일중 비전 그룹, 경제개발 60주년 기념식, 외교부 주관 행사 다수, 반기문재단 컨퍼런스, 대통령 참석 국가 공식 기념식, 공항 VIP 의전 외 다수</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" aria-expanded="false" aria-controls="acc8">
+        <span class="acc-idx">08</span>
+        <span class="acc-name">글로벌 · F&amp;B · 서비스 경험</span>
+        <span class="acc-icon"></span>
+      </button>
+      <div class="acc-panel" id="acc8">
+        <div class="acc-content">
+          <p class="acc-sub">F&amp;B · 글로벌</p>
+          <p class="acc-text">SkyCity Auckland "MASU by Nic Watt" 바텐더 (뉴질랜드 · 한국인 최초), MACHIBAR 바텐더 (일본 · 외국인 최초), Coco Cuba No 바텐더 (호주), Uncle Tom's Cabin · Coffee Bar K 청담 · 임페리얼팰리스 호텔 제과주방 · 이탈리아 대사관저 F&amp;B 서비스 운영</p>
+          <p class="acc-sub">글로벌 프로젝트</p>
+          <p class="acc-text">Adoption 2024 Tokyo Conference 현지파견 운영팀장, 일본 잡지사 한국 촬영 코디네이터, 일본인 대상 여행 코디네이션 다수</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /accordion -->
+</div>
+</section>
+
+
+<!-- ============================================================
+     08. PHILOSOPHY
+     ============================================================ -->
+<section class="philosophy section" id="philosophy">
+<div class="wrap">
+
+  <div class="sec-head u-reveal">
+    <p class="sec-label">Philosophy</p>
+    <h2 class="sec-title">철학</h2>
+  </div>
+
+  <div class="phil-body u-reveal">
+    <p class="phil-p">모든 것은 결국 사람으로 연결됩니다. 구조를 만드는 것도 사람이고, 그 구조를 움직이는 것도 사람이며, 결국 그 모든 것들은 사람을 위해 존재합니다. 저는 항상 사람을 중심에 두고 생각하며, 그 가치를 성과로 증명해 왔습니다.</p>
+    <p class="phil-p">어떤 곳에서 어떤 역할을 수행하든, 소홀히 했던 현장은 단 한 번도 없습니다. 셀 수 없이 많은 현장에서 진심으로 임했기에 저의 이력은 단순한 스펙의 나열이 아니라, 직접 부딪히며 축적한 단단한 내공이자 눈에 보이는 성과를 만들어내는 데이터가 되었습니다.</p>
+    <p class="phil-p">앞으로도 저의 기준은 변함없습니다. 사람을 중심으로 생각하고, 매 순간 진심을 담아 만족할 만한 성과로 보여드리겠습니다.</p>
+  </div>
+
+  <div class="phil-tags u-reveal">
+    <span class="phil-tag">사람</span>
+    <span class="phil-tag">신뢰</span>
+    <span class="phil-tag">경험</span>
+    <span class="phil-tag">성과</span>
+    <span class="phil-tag">안전</span>
+    <span class="phil-tag">협업</span>
+    <span class="phil-tag">즐거움</span>
+    <span class="phil-tag">존중</span>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ============================================================
+     09. CONTACT
+     ============================================================ -->
+<section class="contact section" id="contact">
+<div class="wrap">
+
+  <div class="u-reveal">
+    <h2 class="contact-title">함께 일한다면</h2>
+    <p class="contact-body">
+      사람 사이의 신뢰를 바탕으로 매 순간을 즐기는 저의 에너지가<br>
+      브랜드의 내일을 만드는 힘이 될 수 있도록,<br>
+      함께 고민하고, 결과로 증명하는 파트너가 되겠습니다.
+    </p>
+  </div>
+
+  <!-- [수정 포인트] 이메일·전화번호 교체 -->
+  <div class="contact-info u-reveal">
+    <a href="mailto:your@email.com" class="contact-link">
+      <span class="contact-lbl">Email</span>
+      <span class="contact-val">your@email.com</span>
+    </a>
+    <a href="tel:+8210XXXXXXXX" class="contact-link">
+      <span class="contact-lbl">Phone</span>
+      <span class="contact-val">010-XXXX-XXXX</span>
+    </a>
+  </div>
+
+  <!-- [수정 포인트] 이력서 파일명 교체 -->
+  <div class="contact-cta u-reveal">
+    <a href="resume.pdf" download class="btn btn--gold">
+      <span>이력서 다운로드</span>
+      <span class="btn-arrow">↓</span>
+    </a>
+  </div>
+
+</div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+  <p class="footer-copy">© 2026 여은혜 · Yeo Eunhye</p>
+  <p class="footer-top"><a href="#hero">Top ↑</a></p>
+</footer>
+
+
+<!-- ============================================================
+     JS — 인라인
+     ============================================================ -->
+<script>
+/* 1. Nav 스크롤 감지 */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, {passive:true});
+
+/* 2. 모바일 메뉴 */
+const hamburger = document.getElementById('hamburger');
+const navMobile = document.getElementById('navMobile');
+
+hamburger.addEventListener('click', () => {
+  const open = hamburger.classList.toggle('open');
+  navMobile.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+
+navMobile.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    navMobile.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+/* 3. 아코디언 */
+document.querySelectorAll('.acc-trigger').forEach(trigger => {
+  trigger.addEventListener('click', () => {
+    const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+    // 모두 닫기
+    document.querySelectorAll('.acc-trigger').forEach(t => {
+      t.setAttribute('aria-expanded', 'false');
+      document.getElementById(t.getAttribute('aria-controls')).classList.remove('open');
+    });
+
+    // 현재 항목 토글
+    if (!isOpen) {
+      trigger.setAttribute('aria-expanded', 'true');
+      document.getElementById(trigger.getAttribute('aria-controls')).classList.add('open');
+    }
+  });
+});
+
+/* 4. 스크롤 등장 애니메이션 */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in');
+      observer.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.1, rootMargin: '-30px 0px'});
+
+document.querySelectorAll('.u-reveal').forEach((el, i) => {
+  // 같은 그리드 안에서 순차 딜레이
+  const siblings = el.parentElement.querySelectorAll('.u-reveal');
+  if (siblings.length > 1) {
+    [...siblings].forEach((s, j) => { s.style.transitionDelay = j * 0.07 + 's'; });
+  }
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
