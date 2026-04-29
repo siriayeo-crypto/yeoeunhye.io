@@ -1,3 +1,20 @@
+<!--
+================================================================================
+  한일경어변환기 — 日韓 敬語 Converter
+  Copyright (c) 2026 여은혜 (Eunhye Yeo). All rights reserved.
+
+  이 소프트웨어의 소스 코드와 디자인에 대한 모든 권리는 저작권자 '여은혜'에게 있습니다.
+  저작권자의 명시적인 서면 동의 없는 상업적 이용 및 재배포를 엄격히 금지합니다.
+  본 저작권 표시를 삭제하거나 변경하는 행위를 금지합니다.
+  문의: yeoeh525@gmail.com
+
+  All rights to the source code and design of this software are owned by
+  the copyright holder, Eunhye Yeo.
+  Commercial use and redistribution without explicit written consent are
+  strictly prohibited. Removing or altering this notice is prohibited.
+  Contact: yeoeh525@gmail.com
+================================================================================
+-->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -345,6 +362,31 @@
   }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+  /* ───── 저작권 표시 ───── */
+  .header-credit {
+    font-size:10px; color:var(--gray);
+    letter-spacing:0.05em; margin-top:5px;
+    opacity:0.8;
+  }
+  .header-credit span { color:var(--gold); font-weight:600; }
+
+  .footer-credit {
+    text-align:center;
+    padding:18px 20px 22px;
+    border-top:1px solid var(--gold-light);
+    margin-top:4px;
+  }
+  .footer-license {
+    font-family:'Shippori Mincho', serif;
+    font-size:12px; font-weight:600;
+    color:var(--gold); margin-bottom:6px;
+    letter-spacing:0.05em;
+  }
+  .footer-desc {
+    font-size:10px; color:var(--gray);
+    line-height:1.7; letter-spacing:0.02em;
+  }
+
   @keyframes slideUp {
     from { opacity:0; transform:translateY(18px); }
     to   { opacity:1; transform:translateY(0); }
@@ -405,6 +447,7 @@
   <header class="header">
     <div class="header-jp">敬語 · 翻訳 · 한일경어변환기</div>
     <h1>한일 경어 <span>변환기</span></h1>
+    <div class="header-credit">by <span>여은혜</span> · Eunhye Yeo</div>
   </header>
 
   <div class="settings-trigger">
@@ -526,6 +569,12 @@
 
     <div class="points-text" id="pointsText"></div>
   </div>
+
+  <!-- 푸터 저작권 -->
+  <footer class="footer-credit">
+    <div class="footer-license">Copyright 2026. 여은혜. All rights reserved.</div>
+    <div class="footer-desc">이 소프트웨어의 상업적 이용 및 재배포를 금지합니다.<br>문의: yeoeh525@gmail.com</div>
+  </footer>
 
 </div><!-- /container -->
 
