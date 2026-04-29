@@ -1,417 +1,1227 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>아이디어 뱅크 v2.0 — 여은혜</title>
-    <!-- Tailwind CSS & Lucide Icons & React -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F5F3EE; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .toast-active { opacity: 1 !important; transform: translateY(0) !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<title>아이디어 뱅크 — 여은혜</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F3EE;--surface:#FFF;--surface2:#F0EDE6;--surface3:#E8E4DC;
+  --border:rgba(0,0,0,0.08);--border-md:rgba(0,0,0,0.13);
+  --text:#1A1814;--muted:#7A7670;--hint:#B0ADA8;
+  --accent:#2B4FDB;--accent-bg:#EEF1FB;
+  --danger:#C0392B;--danger-bg:#FDF0EF;
+  --success:#1A7A4A;--success-bg:#EDF7F2;
+  --warning:#9A6500;--warning-bg:#FEF8EC;
+  --r:14px;--tap:48px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overscroll-behavior:none;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.25rem;height:56px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.logo{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;letter-spacing:0.02em;flex-shrink:0;}
+.logo em{color:var(--accent);font-style:normal;}
+.sync-label{font-size:11px;color:var(--hint);display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;}
+.sync-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.dot-local{background:#E89020;}.dot-sheets{background:var(--success);}.dot-syncing{background:var(--accent);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.topbar-right{display:flex;align-items:center;gap:4px;}
+.icon-btn{width:var(--tap);height:var(--tap);border-radius:12px;border:none;background:transparent;color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
+.icon-btn:hover,.icon-btn:active{background:var(--surface2);}
+.icon-btn.edit-on{background:var(--danger-bg);color:var(--danger);}
+.text-btn{height:34px;padding:0 12px;border-radius:20px;border:1px solid var(--border-md);background:var(--surface);color:var(--muted);font-size:12px;font-weight:500;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
+.text-btn:hover{background:var(--surface2);color:var(--text);}
+.text-btn.t-sheets{background:var(--success-bg);color:var(--success);border-color:rgba(26,122,74,.3);}
+.text-btn.t-danger{color:var(--danger);border-color:rgba(192,57,43,.3);}
+.text-btn.edit-on{background:var(--danger-bg);color:var(--danger);border-color:rgba(192,57,43,.3);}
+
+/* SEARCH */
+.search-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 1.25rem;}
+.search-inner{position:relative;display:flex;align-items:center;background:var(--surface2);border-radius:12px;border:1px solid var(--border-md);}
+.search-icon{position:absolute;left:12px;font-size:14px;color:var(--hint);pointer-events:none;}
+.search-input{width:100%;height:40px;font-size:14px;font-family:'Noto Sans KR',sans-serif;padding:0 40px 0 38px;border:none;background:transparent;color:var(--text);outline:none;}
+.search-input::placeholder{color:var(--hint);}
+.search-clear{position:absolute;right:6px;width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--hint);font-size:18px;display:none;align-items:center;justify-content:center;cursor:pointer;}
+
+/* FILTER */
+.filter-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.25rem 10px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.chip{display:inline-flex;align-items:center;font-family:'Noto Sans KR',sans-serif;font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border-md);background:transparent;color:var(--muted);cursor:pointer;margin-right:6px;transition:all .15s;white-space:nowrap;}
+.chip.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+.chip:hover{color:var(--text);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.stat{background:var(--surface);padding:10px 8px;text-align:center;}
+.stat-n{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;display:block;}
+.stat-l{font-size:10px;color:var(--muted);display:block;margin-top:1px;}
+
+/* SUB TOOLBAR */
+.sub-toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.toggle-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border-md);background:transparent;color:var(--muted);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+.toggle-btn:hover{background:var(--surface2);color:var(--text);}
+.toggle-btn.active{background:var(--success-bg);color:var(--success);border-color:rgba(26,122,74,.3);}
+.done-count{font-family:'DM Mono',monospace;font-size:10px;background:var(--surface2);padding:1px 6px;border-radius:10px;color:var(--muted);}
+
+/* EDIT BANNER */
+.edit-banner{display:none;background:var(--danger-bg);border-bottom:1px solid rgba(192,57,43,.15);padding:10px 1.25rem;}
+.edit-banner.show{display:block;}
+.edit-hints{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.hint-tag{font-size:11px;color:var(--danger);background:rgba(192,57,43,.1);padding:3px 8px;border-radius:6px;}
+.edit-done-row{display:flex;gap:8px;}
+.edit-done-btn{flex:1;height:42px;background:var(--danger);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:500;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.pw-change-btn{height:42px;padding:0 16px;background:transparent;color:var(--danger);border:1px solid rgba(192,57,43,.3);border-radius:12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;}
+
+/* SHEETS STATUS */
+.sheets-status{display:none;background:var(--success-bg);border-bottom:1px solid rgba(26,122,74,.15);padding:8px 1.25rem;font-size:12px;color:var(--success);align-items:center;justify-content:space-between;gap:8px;}
+.sheets-status.show{display:flex;}
+.sheets-status button{font-size:11px;padding:4px 10px;border-radius:8px;border:1px solid rgba(26,122,74,.3);background:transparent;color:var(--success);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+
+/* MAIN */
+.main{padding:1.25rem;padding-bottom:6rem;}
+.grid{display:flex;flex-direction:column;gap:12px;}
+
+/* COMPLETED TOP SECTION */
+.done-section{background:var(--surface);border:1.5px solid var(--success);border-radius:var(--r);overflow:hidden;margin-bottom:4px;}
+.done-section-head{padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;min-height:var(--tap);}
+.done-section-head h3{font-size:14px;font-weight:600;color:var(--success);flex:1;}
+.done-section-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--success);background:var(--success-bg);padding:2px 8px;border-radius:10px;}
+.done-section-arrow{font-size:12px;color:var(--success);transition:transform .2s;}
+.done-section.collapsed .done-section-arrow{transform:rotate(-90deg);}
+.done-section.collapsed .done-cards{display:none;}
+.done-cards{padding:8px 12px 12px;display:flex;flex-direction:column;gap:8px;}
+.done-card{background:var(--success-bg);border:1px solid rgba(26,122,74,.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.done-card-info{flex:1;min-width:0;}
+.done-card-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.done-card-meta{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.done-card-date{font-size:10px;color:var(--success);font-family:'DM Mono',monospace;}
+.done-card-cat{font-size:10px;color:var(--muted);background:var(--surface2);padding:1px 6px;border-radius:4px;}
+.done-link-btn{flex-shrink:0;height:34px;padding:0 12px;border-radius:10px;background:var(--success);color:#fff;border:none;font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;text-decoration:none;}
+.done-link-btn:hover{opacity:.88;}
+.done-no-link{flex-shrink:0;font-size:11px;color:var(--hint);padding:0 8px;}
+
+/* SECTION DIVIDER */
+.section-label{font-size:11px;font-weight:500;color:var(--hint);letter-spacing:.05em;padding:4px 0 8px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* CAT CARD */
+.cat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .2s;}
+.cat-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;min-height:var(--tap);}
+.cat-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cat-title{font-size:14px;font-weight:500;flex:1;}
+.cat-meta{display:flex;align-items:center;gap:6px;}
+.cat-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--hint);}
+.cat-done-pill{font-family:'DM Mono',monospace;font-size:10px;background:var(--success-bg);color:var(--success);padding:1px 7px;border-radius:10px;}
+.cat-arrow{font-size:12px;color:var(--hint);transition:transform .2s;flex-shrink:0;}
+.cat-card.collapsed .cat-arrow{transform:rotate(-90deg);}
+.cat-card.collapsed .cat-body{display:none;}
+.cat-body{}
+.cat-del{width:36px;height:36px;border-radius:10px;border:none;background:var(--danger-bg);color:var(--danger);font-size:15px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.edit-active .cat-del{display:flex;}
+
+/* IDEAS */
+.idea-list{padding:4px 8px;}
+.idea-row{display:flex;align-items:center;gap:4px;border-radius:10px;margin-bottom:2px;}
+.idea-main{flex:1;display:flex;align-items:flex-start;justify-content:space-between;min-height:var(--tap);padding:8px 10px;border-radius:10px;border:1px solid transparent;background:transparent;cursor:pointer;text-align:left;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--muted);transition:all .12s;width:100%;}
+.idea-main:hover,.idea-main:active{background:var(--surface2);}
+.idea-main .l{flex:1;display:flex;flex-direction:column;gap:3px;}
+.idea-main .name{font-size:13px;line-height:1.4;color:var(--text);}
+.idea-main .badges{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:2px;}
+.idea-main .r{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:6px;padding-top:4px;}
+.memo-toggle{width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--hint);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
+.memo-toggle:hover{background:var(--surface2);color:var(--text);}
+.memo-toggle.open{color:var(--accent);}
+.memo-panel{display:none;padding:0 10px 10px 10px;border-top:1px dashed var(--border-md);margin-top:2px;}
+.memo-panel.open{display:block;}
+.memo-block{margin-bottom:8px;}
+.memo-block:last-child{margin-bottom:0;}
+.memo-label{font-size:10px;font-weight:500;color:var(--hint);letter-spacing:.04em;margin-bottom:3px;display:flex;align-items:center;gap:4px;}
+.memo-text{font-size:12px;color:var(--muted);line-height:1.6;white-space:pre-wrap;background:var(--surface2);border-radius:8px;padding:7px 10px;}
+.memo-private .memo-text{background:#FEF8EC;border-left:2px solid var(--warning);}
+
+/* DONE DIVIDER inside card */
+.done-divider{display:flex;align-items:center;gap:8px;padding:6px 10px 4px;margin-top:4px;}
+.done-divider-line{flex:1;height:1px;background:rgba(26,122,74,.25);}
+.done-divider-label{font-size:10px;font-weight:600;color:var(--success);letter-spacing:.05em;}
+.done-idea .idea-main .name{font-weight:600;color:var(--text);}
+
+/* ORDER BTNS */
+.order-btns{display:none;flex-direction:column;gap:2px;flex-shrink:0;}
+.edit-active .order-btns{display:flex;}
+.order-btn{width:26px;height:22px;border:none;background:transparent;color:var(--hint);font-size:11px;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+.order-btn:hover{background:var(--surface2);color:var(--text);}
+.del-idea{width:var(--tap);height:var(--tap);border-radius:12px;border:none;background:transparent;color:var(--hint);font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.edit-active .del-idea{display:flex;}
+.del-idea:hover,.del-idea:active{background:var(--danger-bg);color:var(--danger);}
+
+/* BADGES */
+.badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;padding:2px 6px;border-radius:5px;letter-spacing:.02em;white-space:nowrap;}
+.b-todo{background:var(--surface2);color:var(--muted);}
+.b-wip{background:var(--warning-bg);color:var(--warning);}
+.b-done{background:var(--success-bg);color:var(--success);}
+.b-high{background:#FEE;color:#C0392B;}
+.b-mid{background:var(--warning-bg);color:var(--warning);}
+.b-easy{background:var(--success-bg);color:var(--success);}
+.b-medium{background:var(--warning-bg);color:var(--warning);}
+.b-hard{background:#FEE;color:#C0392B;}
+.b-plain{background:var(--success-bg);color:var(--success);}
+.meta-date{font-size:10px;color:var(--hint);font-family:'DM Mono',monospace;}
+.memo-dot{font-size:10px;}
+
+/* TOOL BADGES — 각 도구별 색상 */
+.tool-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:5px;letter-spacing:.02em;white-space:nowrap;display:inline-block;}
+.tool-claude{background:#FFF0E6;color:#B45309;}
+.tool-gemini{background:#EEF1FB;color:#4338CA;}
+.tool-chatgpt{background:#D1FAE5;color:#065F46;}
+.tool-canva{background:#F5F3FF;color:#7C3AED;}
+.tool-gdocs{background:#DBEAFE;color:#1D4ED8;}
+.tool-gsheets{background:#D1FAE5;color:#047857;}
+.tool-github{background:#F1F5F9;color:#1E293B;}
+.tool-openrouter{background:#FEF3C7;color:#92400E;}
+.tool-custom{background:#F3E8FF;color:#6B21A8;}
+
+/* ADD ROW */
+.add-row{display:none;padding:8px 8px 10px;border-top:1px dashed var(--border-md);flex-direction:column;gap:6px;}
+.edit-active .add-row{display:flex;}
+.add-input-row{display:flex;gap:6px;align-items:center;}
+.add-in{flex:1;height:42px;font-size:14px;font-family:'Noto Sans KR',sans-serif;padding:0 14px;border-radius:12px;border:1px dashed var(--border-md);background:transparent;color:var(--text);outline:none;transition:all .15s;min-width:0;}
+.add-in:focus{border-color:var(--accent);background:var(--accent-bg);border-style:solid;}
+.add-in::placeholder{color:var(--hint);}
+.add-ok{height:42px;padding:0 16px;border-radius:12px;border:1px solid var(--border-md);background:var(--surface2);color:var(--muted);font-size:14px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.add-ok:hover,.add-ok:active{background:var(--text);color:var(--bg);}
+
+/* ADD CAT */
+.add-cat-btn{display:none;width:100%;height:52px;border-radius:var(--r);border:1.5px dashed var(--border-md);background:transparent;color:var(--hint);font-size:14px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
+.add-cat-btn.show{display:flex;}
+.add-cat-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);}
+
+/* FAB */
+.fab{position:fixed;bottom:1.5rem;right:1.25rem;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(43,79,219,.35);z-index:90;transition:all .2s;}
+.fab:active{transform:scale(.93);}
+.fab.hidden{display:none;}
+
+/* TOGGLE SWITCH */
+.tog-wrap{position:relative;display:inline-block;width:38px;height:22px;flex-shrink:0;}
+.tog-wrap input{opacity:0;width:0;height:0;position:absolute;}
+.tog-track{position:absolute;inset:0;border-radius:11px;background:var(--border-md);cursor:pointer;transition:background .2s;}
+.tog-thumb{position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);pointer-events:none;}
+.tog-wrap input:checked+.tog-track{background:var(--accent);}
+.tog-wrap input:checked~.tog-thumb{transform:translateX(16px);}
+
+/* BOTTOM SHEET */
+.sheet-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center;}
+.sheet-bg.open{display:flex;}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:0 0 max(1.5rem,env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--border-md);margin:12px auto 16px;}
+.sheet-title{font-size:16px;font-weight:500;padding:0 1.25rem 1rem;border-bottom:1px solid var(--border);}
+.sheet-body{padding:1rem 1.25rem 1.5rem;}
+.sheet-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:1rem;}
+.sheet-steps{background:var(--surface2);border-radius:12px;padding:1rem;margin-bottom:1rem;}
+.sheet-step{display:flex;gap:10px;font-size:13px;color:var(--muted);margin-bottom:8px;}
+.sheet-step:last-child{margin-bottom:0;}
+.step-n{width:20px;height:20px;border-radius:50%;background:var(--surface);border:1px solid var(--border-md);font-family:'DM Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);}
+.url-input{width:100%;height:44px;font-size:13px;font-family:'DM Mono',monospace;padding:0 14px;border-radius:12px;border:1px solid var(--border-md);background:var(--surface2);color:var(--text);outline:none;margin-bottom:8px;}
+.url-input:focus{border-color:var(--accent);background:var(--accent-bg);}
+.sheet-note{font-size:11px;color:var(--hint);line-height:1.6;margin-bottom:1.25rem;}
+.sheet-btns{display:flex;gap:8px;}
+.sheet-btn{flex:1;height:48px;border-radius:12px;font-size:14px;font-weight:500;font-family:'Noto Sans KR',sans-serif;border:1px solid var(--border-md);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s;}
+.sheet-btn:hover,.sheet-btn:active{background:var(--surface3);}
+.sheet-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.sheet-btn.primary:hover{opacity:.88;}
+
+/* FORM FIELDS */
+.field-label{font-size:12px;color:var(--muted);margin-bottom:5px;display:block;}
+.field-group{margin-bottom:14px;}
+.seg-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.seg-btn{flex:1;min-width:60px;height:36px;border-radius:10px;border:1px solid var(--border-md);background:transparent;color:var(--muted);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.seg-btn:hover{background:var(--surface2);}
+.seg-btn.sel-todo{background:var(--surface2);color:var(--text);}
+.seg-btn.sel-wip{background:var(--warning-bg);color:var(--warning);border-color:var(--warning);}
+.seg-btn.sel-done{background:var(--success-bg);color:var(--success);border-color:var(--success);}
+.seg-btn.sel-high{background:#FEE;color:var(--danger);border-color:var(--danger);}
+.seg-btn.sel-mid{background:var(--warning-bg);color:var(--warning);border-color:var(--warning);}
+.seg-btn.sel-low{background:var(--surface2);color:var(--muted);}
+.seg-btn.sel-easy{background:var(--success-bg);color:var(--success);border-color:var(--success);}
+.seg-btn.sel-medium{background:var(--warning-bg);color:var(--warning);border-color:var(--warning);}
+.seg-btn.sel-hard{background:#FEE;color:var(--danger);border-color:var(--danger);}
+.field-input{width:100%;height:42px;font-size:13px;font-family:'Noto Sans KR',sans-serif;padding:0 14px;border-radius:12px;border:1px solid var(--border-md);background:var(--surface2);color:var(--text);outline:none;}
+.field-input:focus{border-color:var(--accent);background:var(--accent-bg);}
+.field-textarea{width:100%;min-height:80px;font-size:13px;font-family:'Noto Sans KR',sans-serif;padding:10px 14px;border-radius:12px;border:1px solid var(--border-md);background:var(--surface2);color:var(--text);outline:none;resize:vertical;line-height:1.6;}
+.field-textarea:focus{border-color:var(--accent);background:var(--accent-bg);}
+.field-textarea.private{background:#FEF8EC;}
+.field-textarea.private:focus{border-color:var(--warning);}
+
+/* TOOL INPUT */
+.tool-input-wrap{display:flex;gap:6px;margin-bottom:8px;}
+.tool-input{flex:1;height:38px;font-size:13px;font-family:'Noto Sans KR',sans-serif;padding:0 12px;border-radius:10px;border:1px solid var(--border-md);background:var(--surface2);color:var(--text);outline:none;}
+.tool-input:focus{border-color:var(--accent);background:var(--accent-bg);}
+.tool-add-btn{height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--border-md);background:var(--surface2);color:var(--muted);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.tool-add-btn:hover{background:var(--text);color:var(--bg);}
+.tool-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:10px;}
+.tool-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;cursor:default;}
+.tool-tag .ttx{background:none;border:none;color:inherit;font-size:13px;cursor:pointer;padding:0;line-height:1;opacity:.7;}
+.tool-tag .ttx:hover{opacity:1;}
+.preset-tools{display:flex;flex-wrap:wrap;gap:5px;}
+.preset-btn{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;border:none;cursor:pointer;transition:all .15s;}
+.preset-btn:hover{opacity:.8;}
+.preset-btn.added{opacity:.4;cursor:default;}
+
+/* PASSWORD */
+.pw-dots{display:flex;gap:12px;justify-content:center;margin:1.5rem 0;}
+.pw-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border-md);background:transparent;transition:all .15s;}
+.pw-dot.filled{background:var(--accent);border-color:var(--accent);}
+.pw-dot.error{background:var(--danger);border-color:var(--danger);}
+.pw-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+.pw-key{height:56px;border-radius:14px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:20px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.pw-key:active{background:var(--surface3);transform:scale(.95);}
+.pw-key.del{font-size:16px;color:var(--muted);}
+.pw-key.empty{background:transparent;border-color:transparent;pointer-events:none;}
+.pw-error-msg{text-align:center;font-size:13px;color:var(--danger);height:20px;margin-bottom:8px;}
+
+/* PROMPT */
+.prompt-preview{font-size:13px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--muted);line-height:1.7;margin-bottom:1rem;white-space:pre-wrap;max-height:140px;overflow-y:auto;}
+
+/* MENU */
+.menu-item{display:flex;align-items:center;gap:14px;width:100%;min-height:52px;padding:0 4px;border:none;background:transparent;font-size:15px;font-family:'Noto Sans KR',sans-serif;color:var(--text);cursor:pointer;border-radius:12px;text-align:left;transition:background .1s;}
+.menu-item:hover,.menu-item:active{background:var(--surface2);}
+.mi-icon{font-size:20px;width:32px;text-align:center;}
+.menu-item.danger{color:var(--danger);}
+.menu-divider{height:1px;background:var(--border);margin:4px 0;}
+
+/* QUICK ADD */
+.quick-add-name{width:100%;height:48px;font-size:15px;font-family:'Noto Sans KR',sans-serif;padding:0 16px;border-radius:14px;border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--text);outline:none;margin-bottom:12px;}
+
+/* UNDO */
+.undo-snack{display:none;position:fixed;bottom:5rem;left:1rem;right:1rem;background:var(--text);color:var(--bg);border-radius:14px;padding:12px 16px;font-size:13px;z-index:300;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.15);}
+.undo-snack.show{display:flex;}
+.undo-act{font-size:13px;font-weight:500;color:#88B4FF;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;}
+.undo-prog{position:absolute;bottom:0;left:0;height:3px;background:rgba(255,255,255,.3);border-radius:0 0 14px 14px;width:100%;transform-origin:left;animation:undoProg 4s linear forwards;}
+@keyframes undoProg{from{transform:scaleX(1);}to{transform:scaleX(0);}}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:500;pointer-events:none;}
+.toast-el{background:rgba(26,24,20,.88);color:#fff;font-size:13px;padding:9px 18px;border-radius:20px;white-space:nowrap;font-family:'Noto Sans KR',sans-serif;opacity:0;transition:opacity .2s;}
+.toast-el.show{opacity:1;}
+
+mark{background:rgba(43,79,219,.15);border-radius:2px;color:inherit;}
+
+/* PC */
+@media(min-width:768px){
+  .topbar{padding:0 2rem;}
+  .search-bar,.filter-bar,.sub-toolbar,.sheets-status,.edit-banner{padding-left:2rem;padding-right:2rem;}
+  .main{padding:1.5rem 2rem 5rem;max-width:1200px;margin:0 auto;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .done-section{grid-column:1/-1;}
+  .cat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);}
+  .idea-main{min-height:40px;}
+  .del-idea{width:32px;height:32px;}
+  .undo-snack{left:50%;right:auto;transform:translateX(-50%);width:auto;min-width:280px;bottom:2rem;}
+  .fab{bottom:2rem;right:2rem;}
+}
+@media(min-width:768px){.mobile-only{display:none!important;}}
+@media(max-width:767px){.pc-only{display:none!important;}}
+</style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+<!-- TOPBAR -->
+<div class="topbar">
+  <span class="logo">IDEA<em>BANK</em></span>
+  <span class="sync-label" id="syncLabel" onclick="openSheet('sheetsSheet')">
+    <span class="sync-dot dot-local" id="syncDot"></span>
+    <span id="syncText">로컬</span>
+  </span>
+  <div class="topbar-right">
+    <button class="text-btn t-sheets pc-only" onclick="openSheet('sheetsSheet')">📊 Sheets</button>
+    <button class="text-btn pc-only" onclick="manualSync()">🔄 동기화</button>
+    <button class="text-btn pc-only" onclick="exportData()">⬇ 백업</button>
+    <label class="text-btn pc-only" style="cursor:pointer;">⬆ 복원<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+    <button class="text-btn t-danger pc-only" onclick="resetData()">초기화</button>
+    <button class="icon-btn" id="editBtn" onclick="tryToggleEdit()" title="편집">✏️</button>
+    <button class="icon-btn mobile-only" onclick="openMenu()" title="메뉴">⋯</button>
+  </div>
+</div>
 
-        // 아이콘 컴포넌트 래퍼
-        const Icon = ({ name, size = 20, className = "" }) => {
-            const [iconSvg, setIconSvg] = useState("");
-            useEffect(() => {
-                if (window.lucide) {
-                    const svg = window.lucide.createIcons();
-                }
-            }, []);
-            return <i data-lucide={name} style={{width: size, height: size}} className={className}></i>;
-        };
+<!-- SHEETS STATUS -->
+<div class="sheets-status" id="sheetsStatus">
+  <span id="sheetsStatusText">📊 Sheets 연동됨</span>
+  <button onclick="manualSync()">지금 동기화</button>
+</div>
 
-        const App = () => {
-            const [data, setData] = useState([]);
-            const [loading, setLoading] = useState(false);
-            const [isAdmin, setIsAdmin] = useState(false);
-            const [apiUrl, setApiUrl] = useState(localStorage.getItem('ib_api_url') || '');
-            const [adminPass, setAdminPass] = useState(localStorage.getItem('ib_admin_pass') || '1234');
-            
-            const [activeModal, setActiveModal] = useState(null);
-            const [selectedIdea, setSelectedIdea] = useState(null);
-            const [selectedCatId, setSelectedCatId] = useState(null);
-            const [toastMsg, setToastMsg] = useState("");
+<!-- EDIT BANNER -->
+<div class="edit-banner" id="editBanner">
+  <div class="edit-hints">
+    <span class="hint-tag">탭 → 수정</span>
+    <span class="hint-tag">🗑 → 삭제</span>
+    <span class="hint-tag">↑↓ → 순서 변경</span>
+    <span class="hint-tag">▾ → 메모 보기</span>
+  </div>
+  <div class="edit-done-row">
+    <button class="edit-done-btn" onclick="toggleEdit()">✅ 편집 완료</button>
+    <button class="pw-change-btn" onclick="openPwSheet('change_new')">🔑 비밀번호 변경</button>
+  </div>
+</div>
 
-            useEffect(() => {
-                if (apiUrl) loadData();
-            }, []);
+<!-- SEARCH -->
+<div class="search-bar">
+  <div class="search-inner">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" placeholder="아이디어, 메모, 도구 검색..." oninput="onSearch(this.value)" autocomplete="off">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+  </div>
+</div>
 
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            }, [data, isAdmin, activeModal]);
+<!-- FILTER -->
+<div class="filter-bar" id="filterBar"></div>
 
-            const showToast = (msg) => {
-                setToastMsg(msg);
-                setTimeout(() => setToastMsg(""), 2000);
-            };
+<!-- STATS -->
+<div class="stats" id="statsBar"></div>
 
-            const loadData = async () => {
-                if (!apiUrl) return;
-                setLoading(true);
-                try {
-                    const res = await fetch(`${apiUrl}?action=load`);
-                    const json = await res.json();
-                    setData(Array.isArray(json) ? json : []);
-                } catch (e) {
-                    showToast("데이터 로드 실패");
-                } finally {
-                    setLoading(false);
-                }
-            };
+<!-- SUB TOOLBAR -->
+<div class="sub-toolbar">
+  <button class="toggle-btn" id="showDoneBtn" onclick="toggleShowDone()">
+    ✅ 완료 항목 보기 <span class="done-count" id="doneCountBadge">0</span>
+  </button>
+</div>
 
-            const saveData = async (newData) => {
-                if (!apiUrl) return;
-                setLoading(true);
-                try {
-                    await fetch(apiUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: 'save', data: newData })
-                    });
-                    setData(newData);
-                    showToast("저장되었습니다");
-                } catch (e) {
-                    showToast("저장 실패");
-                } finally {
-                    setLoading(false);
-                }
-            };
+<!-- MAIN -->
+<div class="main"><div class="grid" id="grid"></div></div>
 
-            const handleAdminToggle = () => {
-                if (isAdmin) {
-                    setIsAdmin(false);
-                    showToast("읽기 모드 전환");
-                } else {
-                    const pass = prompt("관리자 비밀번호를 입력하세요:");
-                    if (pass === adminPass) {
-                        setIsAdmin(true);
-                        showToast("관리자 인증 성공");
-                    } else {
-                        showToast("비밀번호 오류");
-                    }
-                }
-            };
+<!-- FAB -->
+<button class="fab" id="fab" onclick="openQuickAdd()" title="빠른 추가">＋</button>
 
-            const addCategory = () => {
-                const title = prompt("새 카테고리 이름:");
-                if (!title) return;
-                const newCat = {
-                    id: 'cat_' + Date.now(),
-                    title,
-                    color: `hsl(${Math.random() * 360}, 70%, 60%)`,
-                    ideas: []
-                };
-                saveData([...data, newCat]);
-            };
+<!-- UNDO -->
+<div class="undo-snack" id="undoSnack">
+  <span id="undoMsg"></span>
+  <button class="undo-act" onclick="doUndo()">되돌리기</button>
+  <div class="undo-prog" id="undoProg"></div>
+</div>
 
-            const addIdea = (catId) => {
-                const input = document.getElementById(`input-${catId}`);
-                const name = input.value;
-                if (!name) return;
-                
-                const newData = data.map(cat => {
-                    if (cat.id === catId) {
-                        return {
-                            ...cat,
-                            ideas: [...cat.ideas, {
-                                id: 'id_' + Date.now(),
-                                name,
-                                ai: false,
-                                status: '미완성',
-                                level: 1,
-                                aiName: '',
-                                createdAt: new Date().toLocaleDateString(),
-                                completedAt: ''
-                            }]
-                        };
-                    }
-                    return cat;
-                });
-                input.value = '';
-                saveData(newData);
-            };
+<!-- TOAST -->
+<div class="toast-wrap"><div class="toast-el" id="toastEl"></div></div>
 
-            const deleteIdea = (e, catId, ideaId) => {
-                e.stopPropagation();
-                if(!confirm("삭제하시겠습니까?")) return;
-                const newData = data.map(cat => {
-                    if (cat.id === catId) {
-                        return { ...cat, ideas: cat.ideas.filter(i => i.id !== ideaId) };
-                    }
-                    return cat;
-                });
-                saveData(newData);
-            };
+<!-- ══ SHEETS SHEET ══ -->
+<div class="sheet-bg" id="sheetsSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">📊 Google Sheets 연동</div>
+    <div class="sheet-body">
+      <p class="sheet-desc">Apps Script 웹앱 URL을 입력하면 Sheets와 양방향으로 동기화돼요.</p>
+      <div class="sheet-steps">
+        <div class="sheet-step"><div class="step-n">1</div><span>Google Sheets 새 파일 생성</span></div>
+        <div class="sheet-step"><div class="step-n">2</div><span>확장 프로그램 → Apps Script → 코드 붙여넣기</span></div>
+        <div class="sheet-step"><div class="step-n">3</div><span>배포 → 웹앱으로 배포 → 누구나 접근 허용</span></div>
+        <div class="sheet-step"><div class="step-n">4</div><span>배포 URL을 아래에 붙여넣기</span></div>
+      </div>
+      <input class="url-input" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/...">
+      <p class="sheet-note">※ URL을 비워두면 연동이 해제돼요.</p>
+      <div class="sheet-btns">
+        <button class="sheet-btn" onclick="closeSheet('sheetsSheet')">취소</button>
+        <button class="sheet-btn primary" onclick="saveSheetsUrl()">연동 저장</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-            const moveIdea = (e, catId, index, direction) => {
-                e.stopPropagation();
-                const newData = [...data];
-                const cat = newData.find(c => c.id === catId);
-                const newIdx = index + direction;
-                if (newIdx < 0 || newIdx >= cat.ideas.length) return;
-                const [moved] = cat.ideas.splice(index, 1);
-                cat.ideas.splice(newIdx, 0, moved);
-                saveData(newData);
-            };
+<!-- ══ PASSWORD SHEET ══ -->
+<div class="sheet-bg" id="pwSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="pwSheetTitle">🔒 편집 비밀번호</div>
+    <div class="sheet-body">
+      <p class="sheet-desc" id="pwSheetDesc">4자리 비밀번호를 입력하세요.</p>
+      <div class="pw-dots" id="pwDots"></div>
+      <div class="pw-error-msg" id="pwError"></div>
+      <div class="pw-numpad">
+        <button class="pw-key" onclick="pwInput('1')">1</button>
+        <button class="pw-key" onclick="pwInput('2')">2</button>
+        <button class="pw-key" onclick="pwInput('3')">3</button>
+        <button class="pw-key" onclick="pwInput('4')">4</button>
+        <button class="pw-key" onclick="pwInput('5')">5</button>
+        <button class="pw-key" onclick="pwInput('6')">6</button>
+        <button class="pw-key" onclick="pwInput('7')">7</button>
+        <button class="pw-key" onclick="pwInput('8')">8</button>
+        <button class="pw-key" onclick="pwInput('9')">9</button>
+        <button class="pw-key empty"></button>
+        <button class="pw-key" onclick="pwInput('0')">0</button>
+        <button class="pw-key del" onclick="pwDel()">⌫</button>
+      </div>
+      <div class="sheet-btns">
+        <button class="sheet-btn" onclick="closePwSheet()">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-            return (
-                <div className="min-h-screen pb-24">
-                    {/* Header */}
-                    <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-40 px-4 py-4 flex justify-between items-center">
-                        <div>
-                            <h1 className="text-xl font-bold flex items-center gap-2">
-                                <i data-lucide="brain" className="text-blue-600"></i> 아이디어 뱅크
-                            </h1>
-                            <p className="text-[10px] text-gray-400 font-mono">IDEABANK SYSTEM V2.0</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={() => setActiveModal('settings')} className="p-2 text-gray-400 hover:bg-gray-100 rounded-full">
-                                <i data-lucide="settings"></i>
-                            </button>
-                            <button 
-                                onClick={handleAdminToggle}
-                                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${isAdmin ? 'bg-blue-600 text-white shadow-lg' : 'bg-white border border-gray-200 text-gray-600'}`}
-                            >
-                                <i data-lucide={isAdmin ? "unlock" : "lock"} style={{width: 14}}></i>
-                                {isAdmin ? 'ADMIN' : 'READ ONLY'}
-                            </button>
-                        </div>
-                    </header>
+<!-- ══ IDEA EDIT SHEET ══ -->
+<div class="sheet-bg" id="ideaEditSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="ideaEditTitle">아이디어 수정</div>
+    <div class="sheet-body">
+      <div class="field-group">
+        <label class="field-label">아이디어 이름</label>
+        <input class="field-input" id="ideaNameInput" placeholder="아이디어 이름">
+      </div>
+      <div class="field-group">
+        <label class="field-label">상태</label>
+        <div class="seg-btns" id="statusBtns">
+          <button class="seg-btn" data-v="todo" onclick="setSeg('status','todo')">미완성</button>
+          <button class="seg-btn" data-v="wip" onclick="setSeg('status','wip')">작업중</button>
+          <button class="seg-btn" data-v="done" onclick="setSeg('status','done')">완료</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">우선순위</label>
+        <div class="seg-btns" id="priorityBtns">
+          <button class="seg-btn" data-v="high" onclick="setSeg('priority','high')">높음</button>
+          <button class="seg-btn" data-v="mid" onclick="setSeg('priority','mid')">보통</button>
+          <button class="seg-btn" data-v="low" onclick="setSeg('priority','low')">낮음</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">난이도</label>
+        <div class="seg-btns" id="diffBtns">
+          <button class="seg-btn" data-v="easy" onclick="setSeg('diff','easy')">쉬움</button>
+          <button class="seg-btn" data-v="medium" onclick="setSeg('diff','medium')">보통</button>
+          <button class="seg-btn" data-v="hard" onclick="setSeg('diff','hard')">어려움</button>
+        </div>
+      </div>
+      <!-- TOOL INPUT -->
+      <div class="field-group">
+        <label class="field-label">사용 도구 / AI</label>
+        <div class="tool-tags" id="editToolTags"></div>
+        <div class="tool-input-wrap">
+          <input class="tool-input" id="toolInput" placeholder="도구 이름 입력..." onkeydown="if(event.key==='Enter'){event.preventDefault();addToolFromInput();}">
+          <button class="tool-add-btn" onclick="addToolFromInput()">추가</button>
+        </div>
+        <div class="preset-tools" id="presetTools"></div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">완성된 앱 링크 (선택)</label>
+        <input class="field-input" id="ideaLinkInput" placeholder="https://...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">완성 날짜</label>
+        <input class="field-input" id="ideaDoneAtInput" type="date">
+      </div>
+      <div class="field-group">
+        <label class="field-label">📝 설명 메모 <span style="font-size:10px;color:var(--hint);">(공개용)</span></label>
+        <textarea class="field-textarea" id="ideaMemoInput" placeholder="아이디어 내용, 기획 의도 등..."></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">🔒 개인 메모 <span style="font-size:10px;color:var(--hint);">(나만 보기)</span></label>
+        <textarea class="field-textarea private" id="ideaPrivateMemoInput" placeholder="나만 보는 메모..."></textarea>
+      </div>
+      <div class="sheet-btns">
+        <button class="sheet-btn" onclick="closeSheet('ideaEditSheet')">취소</button>
+        <button class="sheet-btn primary" onclick="saveIdeaEdit()">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-                    {/* Main Content */}
-                    <main className="p-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                        {isAdmin && (
-                            <button onClick={addCategory} className="border-2 border-dashed border-gray-300 rounded-3xl p-10 flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-all bg-white/50 group">
-                                <i data-lucide="plus" className="mb-2 group-hover:scale-110 transition-transform"></i>
-                                <span className="font-bold">새 카테고리 추가</span>
-                            </button>
-                        )}
+<!-- ══ CAT EDIT SHEET ══ -->
+<div class="sheet-bg" id="catEditSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">카테고리 이름 수정</div>
+    <div class="sheet-body">
+      <input class="url-input" id="catNameInput" placeholder="카테고리 이름" style="margin-bottom:1.25rem;">
+      <div class="sheet-btns">
+        <button class="sheet-btn" onclick="closeSheet('catEditSheet')">취소</button>
+        <button class="sheet-btn primary" onclick="saveCatName()">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-                        {data.map(cat => (
-                            <div key={cat.id} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full min-h-[400px]">
-                                <div className="p-5 flex justify-between items-center border-b border-gray-50">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-4 h-4 rounded-full shadow-inner" style={{backgroundColor: cat.color}}></div>
-                                        <h3 className="font-bold text-lg">{cat.title}</h3>
-                                        <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-bold">{cat.ideas.length}</span>
-                                    </div>
-                                    {isAdmin && (
-                                        <button onClick={() => {if(confirm("카테고리를 삭제할까요?")) saveData(data.filter(c => c.id !== cat.id))}} className="text-gray-200 hover:text-red-400">
-                                            <i data-lucide="trash-2" style={{width: 18}}></i>
-                                        </button>
-                                    )}
-                                </div>
+<!-- ══ QUICK ADD SHEET ══ -->
+<div class="sheet-bg" id="quickAddSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">⚡ 빠른 아이디어 추가</div>
+    <div class="sheet-body">
+      <input class="quick-add-name" id="quickAddName" placeholder="아이디어 이름 입력..." autocomplete="off" onkeydown="if(event.key==='Enter')doQuickAdd()">
+      <div class="field-group">
+        <label class="field-label">카테고리 선택</label>
+        <div class="seg-btns" id="quickCatBtns" style="flex-wrap:wrap;gap:6px;"></div>
+      </div>
+      <div class="sheet-btns" style="margin-top:8px;">
+        <button class="sheet-btn" onclick="closeSheet('quickAddSheet')">취소</button>
+        <button class="sheet-btn primary" onclick="doQuickAdd()">추가</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-                                <div className="flex-1 p-3 space-y-2 overflow-y-auto hide-scrollbar max-h-[500px]">
-                                    {cat.ideas.map((idea, idx) => (
-                                        <div 
-                                            key={idea.id} 
-                                            onClick={() => { setSelectedCatId(cat.id); setSelectedIdea({...idea}); setActiveModal('idea_detail'); }}
-                                            className="group flex items-center justify-between p-4 rounded-2xl bg-gray-50/50 hover:bg-white hover:shadow-md border border-transparent hover:border-gray-100 transition-all cursor-pointer"
-                                        >
-                                            <div className="flex items-center gap-3 flex-1">
-                                                <div className={`w-2 h-2 rounded-full ${idea.status === '완료' ? 'bg-green-500' : idea.status === '작업중' ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                                                <div>
-                                                    <div className={`text-sm font-bold ${idea.status === '완료' ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                                                        {idea.name}
-                                                    </div>
-                                                    <div className="flex gap-2 mt-1">
-                                                        {idea.ai && <span className="text-[8px] bg-purple-600 text-white px-1.5 py-0.5 rounded-md font-black">AI</span>}
-                                                        <span className="text-[9px] text-gray-400 font-medium">난이도 {idea.level}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {isAdmin && (
-                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <div className="flex flex-col">
-                                                        <button onClick={(e) => moveIdea(e, cat.id, idx, -1)} className="p-1 hover:text-blue-600 text-gray-300"><i data-lucide="chevron-up" style={{width: 14}}></i></button>
-                                                        <button onClick={(e) => moveIdea(e, cat.id, idx, 1)} className="p-1 hover:text-blue-600 text-gray-300"><i data-lucide="chevron-down" style={{width: 14}}></i></button>
-                                                    </div>
-                                                    <button onClick={(e) => deleteIdea(e, cat.id, idea.id)} className="p-2 text-gray-300 hover:text-red-500"><i data-lucide="trash-2" style={{width: 16}}></i></button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
+<!-- ══ PROMPT SHEET ══ -->
+<div class="sheet-bg" id="promptSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🚀 앱 제작 프롬프트</div>
+    <div class="sheet-body">
+      <div class="prompt-preview" id="promptPreview"></div>
+      <p class="sheet-desc">Claude 새 대화에 붙여넣으면 바로 제작이 시작돼요.</p>
+      <div class="sheet-btns">
+        <button class="sheet-btn" onclick="closeSheet('promptSheet')">닫기</button>
+        <button class="sheet-btn primary" onclick="confirmCopy()">📋 복사하기</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-                                {isAdmin && (
-                                    <div className="p-4 bg-gray-50/80 border-t border-gray-100">
-                                        <div className="flex gap-2 bg-white p-1 rounded-2xl border border-gray-200 focus-within:ring-2 ring-blue-100 transition-all">
-                                            <input 
-                                                id={`input-${cat.id}`}
-                                                className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
-                                                placeholder="새로운 아이디어 구상..."
-                                                onKeyDown={(e) => e.key === 'Enter' && addIdea(cat.id)}
-                                            />
-                                            <button onClick={() => addIdea(cat.id)} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm shadow-blue-200">추가</button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </main>
+<!-- ══ MENU SHEET ══ -->
+<div class="sheet-bg" id="menuSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">메뉴</div>
+    <div class="sheet-body" style="padding-top:8px;">
+      <button class="menu-item" onclick="closeSheet('menuSheet');openSheet('sheetsSheet')"><span class="mi-icon">📊</span>Google Sheets 연동</button>
+      <button class="menu-item" onclick="closeSheet('menuSheet');manualSync()"><span class="mi-icon">🔄</span>지금 동기화</button>
+      <button class="menu-item" onclick="closeSheet('menuSheet');exportData()"><span class="mi-icon">⬇️</span>JSON 백업</button>
+      <label class="menu-item" style="cursor:pointer;"><span class="mi-icon">⬆️</span>백업 복원<input type="file" accept=".json" style="display:none" onchange="importData(event);closeSheet('menuSheet')"></label>
+      <div class="menu-divider"></div>
+      <button class="menu-item danger" onclick="closeSheet('menuSheet');resetData()"><span class="mi-icon">🔄</span>기본 데이터 초기화</button>
+    </div>
+  </div>
+</div>
 
-                    {/* Settings Modal */}
-                    {activeModal === 'settings' && (
-                        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[60] flex items-center justify-center p-4">
-                            <div className="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl">
-                                <div className="flex justify-between items-center mb-8">
-                                    <h2 className="text-xl font-black">시스템 설정</h2>
-                                    <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x"></i></button>
-                                </div>
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2 px-1">API Endpoint URL</label>
-                                        <input className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 text-xs font-mono" value={apiUrl} onChange={(e) => {setApiUrl(e.target.value); localStorage.setItem('ib_api_url', e.target.value);}} />
-                                    </div>
-                                    <div>
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2 px-1">Admin Password</label>
-                                        <input type="password" className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 text-xs font-mono" value={adminPass} onChange={(e) => {setAdminPass(e.target.value); localStorage.setItem('ib_admin_pass', e.target.value);}} />
-                                    </div>
-                                    <button onClick={() => {setActiveModal(null); loadData();}} className="w-full bg-black text-white py-5 rounded-[24px] font-black hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gray-200">설정 적용하기</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+<script>
+// ══ TOOL COLOR CONFIG ══
+const PRESET_TOOLS=[
+  {name:"Claude",cls:"tool-claude"},
+  {name:"Gemini",cls:"tool-gemini"},
+  {name:"ChatGPT",cls:"tool-chatgpt"},
+  {name:"Canva",cls:"tool-canva"},
+  {name:"Google Docs",cls:"tool-gdocs"},
+  {name:"Google Sheets",cls:"tool-gsheets"},
+  {name:"GitHub",cls:"tool-github"},
+  {name:"OpenRouter",cls:"tool-openrouter"},
+];
+const TOOL_CLASS_MAP={};
+PRESET_TOOLS.forEach(t=>TOOL_CLASS_MAP[t.name]=t.cls);
+const CUSTOM_COLORS=["#7C3AED","#0369A1","#B45309","#047857","#9D174D","#1D4ED8","#065F46","#7E22CE"];
+let customColorIdx=0;
+const customColorMap={};
 
-                    {/* Idea Detail Modal */}
-                    {activeModal === 'idea_detail' && selectedIdea && (
-                        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex items-end sm:items-center justify-center">
-                            <div className="bg-white w-full max-w-lg rounded-t-[40px] sm:rounded-[40px] p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
-                                <div className="flex justify-between items-center mb-8">
-                                    <span className="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Idea Details</span>
-                                    <button onClick={() => setActiveModal(null)} className="p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x"></i></button>
-                                </div>
-                                
-                                <div className="space-y-8">
-                                    <input 
-                                        disabled={!isAdmin}
-                                        className="w-full text-2xl font-black outline-none bg-transparent placeholder-gray-200"
-                                        value={selectedIdea.name}
-                                        onChange={(e) => setSelectedIdea({...selectedIdea, name: e.target.value})}
-                                    />
+function getToolClass(name){
+  if(TOOL_CLASS_MAP[name]) return TOOL_CLASS_MAP[name];
+  if(!customColorMap[name]){
+    customColorMap[name]=CUSTOM_COLORS[customColorIdx%CUSTOM_COLORS.length];
+    customColorIdx++;
+  }
+  return null;
+}
+function getToolStyle(name){
+  const cls=TOOL_CLASS_MAP[name];
+  if(cls) return {cls,style:""};
+  const color=customColorMap[name]||(()=>{customColorMap[name]=CUSTOM_COLORS[Object.keys(customColorMap).length%CUSTOM_COLORS.length];return customColorMap[name];})();
+  return {cls:"tool-custom",style:`background:${color}22;color:${color};`};
+}
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block px-1">현재 상태</label>
-                                            <select 
-                                                disabled={!isAdmin}
-                                                className="w-full bg-gray-50 border-none rounded-2xl px-4 py-4 font-bold text-sm"
-                                                value={selectedIdea.status}
-                                                onChange={(e) => {
-                                                    const s = e.target.value;
-                                                    setSelectedIdea({...selectedIdea, status: s, completedAt: s === '완료' ? new Date().toLocaleDateString() : ''});
-                                                }}
-                                            >
-                                                <option value="미완성">미완성</option>
-                                                <option value="작업중">작업 중</option>
-                                                <option value="완료">완료됨</option>
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block px-1">난이도 (1-5)</label>
-                                            <div className="flex gap-1 h-[52px]">
-                                                {[1,2,3,4,5].map(lv => (
-                                                    <button 
-                                                        key={lv}
-                                                        onClick={() => isAdmin && setSelectedIdea({...selectedIdea, level: lv})}
-                                                        className={`flex-1 rounded-xl font-black text-xs transition-all ${selectedIdea.level >= lv ? 'bg-yellow-400 text-white' : 'bg-gray-100 text-gray-300'}`}
-                                                    >
-                                                        {lv}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
+// ══ DEFAULTS ══
+const DEFAULTS=[{id:"이벤트",title:"이벤트·현장",color:"#7F77DD",ideas:[{name:"AI 런닝시트 자동완성기",ai:true},{name:"현장 인력 배치 시뮬레이터",ai:true},{name:"행사 리스크 점수 계산기",ai:true},{name:"VIP 게스트 프로파일 카드",ai:false},{name:"스폰서 제안 패키지 생성기",ai:true},{name:"행사 콘셉트 무드보드 생성기",ai:true},{name:"관객 동선 시뮬레이터",ai:false},{name:"아티스트 라이더 체크리스트",ai:false},{name:"현장 비상연락망 자동 생성기",ai:false},{name:"행사 날씨 플랜B 생성기",ai:true}]},{id:"세일즈",title:"세일즈·브랜딩",color:"#D85A30",ideas:[{name:"AI 제안서 초안 생성기",ai:true},{name:"클라이언트 자동 CRM",ai:false},{name:"가격 협상 시나리오 생성기",ai:true},{name:"콜드 메일 성공률 분석기",ai:true},{name:"팝업스토어 성과 대시보드",ai:false},{name:"ROI 계산기",ai:false},{name:"경쟁사 벤치마킹 보드",ai:false},{name:"세일즈 파이프라인 시각화",ai:false}]},{id:"다국어",title:"다국어·글로벌",color:"#1D9E75",ideas:[{name:"한·영·일 이메일 템플릿 생성기",ai:true},{name:"일본어 경어 레벨 변환기",ai:true},{name:"나라별 비즈니스 에티켓 가이드",ai:true},{name:"다국어 긴급 상황 대응 카드",ai:false},{name:"글로벌 시차 스케줄러",ai:false},{name:"현장 안내방송 스크립트 번역기",ai:true}]},{id:"AI",title:"AI 페르소나",color:"#378ADD",ideas:[{name:"일본 비즈니스 파트너 봇",ai:true},{name:"베테랑 이벤트 디렉터 자문 봇",ai:true},{name:"냉철한 세일즈 코치 봇",ai:true},{name:"커리어 멘토 봇",ai:true},{name:"AI 협상 시뮬레이터",ai:true}]},{id:"커리어",title:"커리어·포트폴리오",color:"#BA7517",ideas:[{name:"인터랙티브 포트폴리오 웹사이트",ai:false},{name:"프로젝트 임팩트 수치 계산기",ai:false},{name:"면접 Q&A 연습 앱",ai:true},{name:"강점 언어 발굴기",ai:true},{name:"커리어 타임라인 시각화",ai:false},{name:"자기소개서 버전 관리기",ai:false}]},{id:"재무",title:"재무·정산",color:"#639922",ideas:[{name:"프리랜서 수입·지출 트래커",ai:false},{name:"프로젝트별 시간당 단가 계산기",ai:false},{name:"출장 경비 정산 자동화",ai:false},{name:"영수증 OCR 경비 자동 입력",ai:true},{name:"행사별 수익성 자동 분석기",ai:false}]},{id:"생활",title:"생활·웰빙",color:"#D4537E",ideas:[{name:"현장 당일 에너지 관리 플래너",ai:true},{name:"수면·컨디션 트래커",ai:false},{name:"AI 여행 패킹 리스트 생성기",ai:true},{name:"냉장고 재료 레시피 생성기",ai:true},{name:"집중 모드 BGM 플레이어",ai:false}]},{id:"미래",title:"미래형·독창적",color:"#888780",ideas:[{name:"나만의 AI 비서 대시보드",ai:true},{name:"음성 메모 업무 자동화",ai:true},{name:"자동 SNS 행사 후기 생성기",ai:true},{name:"개인 브랜딩 통합 관리 허브",ai:true},{name:"나의 10년 후 시뮬레이터",ai:true},{name:"AI 감정 일기·번아웃 예방기",ai:true}]},{id:"연동",title:"연동 자동화",color:"#5DCAA5",ideas:[{name:"구글 캘린더 행사 자동 등록기",ai:false},{name:"Drive + Notion 프로젝트 허브",ai:false},{name:"Gmail + Notion 클라이언트 히스토리",ai:false},{name:"Sheets + Slack KPI 알림 봇",ai:false},{name:"음성 메모 → 노션 자동 저장",ai:true}]}];
+const DB_MAP={이벤트:"localStorage",세일즈:"Google Sheets",다국어:"없음",AI:"localStorage",커리어:"localStorage",재무:"Google Sheets",생활:"localStorage",미래:"Google Sheets",연동:"Google Sheets"};
 
-                                    <div className="p-6 bg-purple-50 rounded-[32px] border border-purple-100">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-2 text-purple-700 font-black text-sm">
-                                                <i data-lucide="sparkles" style={{width: 16}}></i> AI ENGINE
-                                            </div>
-                                            <input 
-                                                type="checkbox" 
-                                                className="w-6 h-6 accent-purple-600 rounded-lg" 
-                                                checked={selectedIdea.ai}
-                                                disabled={!isAdmin}
-                                                onChange={(e) => setSelectedIdea({...selectedIdea, ai: e.target.checked})}
-                                            />
-                                        </div>
-                                        {selectedIdea.ai && (
-                                            <input 
-                                                disabled={!isAdmin}
-                                                className="w-full bg-white border border-purple-100 rounded-xl px-4 py-3 text-sm outline-none placeholder-purple-300"
-                                                placeholder="사용할 모델명 (ex: Claude 3.5 Sonnet)"
-                                                value={selectedIdea.aiName}
-                                                onChange={(e) => setSelectedIdea({...selectedIdea, aiName: e.target.value})}
-                                            />
-                                        )}
-                                    </div>
+// ══ STATE ══
+let cats=[],editMode=false,currentFilter="all",searchQuery="",sheetsUrl="";
+let undoStack=[],undoTimer=null,pendingPrompt="",editingCatId=null,editingIdeaKey=null;
+let showDone=false,quickCatId=null,doneSectionCollapsed=false;
+let PW="5555",pwBuffer="",pwMode="check",newPwTemp="";
+let editSeg={status:"todo",priority:"mid",diff:"easy"};
+let editTools=[];
+let collapsedCats=new Set();
+let openMemos=new Set(); // ideaKey = catId+'-'+idx
 
-                                    <div className="grid grid-cols-2 gap-3 text-[10px] font-bold">
-                                        <div className="bg-gray-50 px-4 py-3 rounded-2xl">
-                                            <div className="text-gray-400 mb-1">CREATED</div>
-                                            <div className="text-gray-600">{selectedIdea.createdAt || '-'}</div>
-                                        </div>
-                                        <div className="bg-gray-50 px-4 py-3 rounded-2xl">
-                                            <div className="text-gray-400 mb-1">COMPLETED</div>
-                                            <div className="text-gray-600 font-mono text-blue-600">{selectedIdea.completedAt || 'PROCEEDING...'}</div>
-                                        </div>
-                                    </div>
+// ══ LOAD / SAVE ══
+function loadData(){
+  try{const s=localStorage.getItem("ideabank_v4");cats=s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULTS));}
+  catch{cats=JSON.parse(JSON.stringify(DEFAULTS));}
+  cats.forEach(cat=>cat.ideas.forEach(idea=>{
+    if(!idea.status)idea.status="todo";
+    if(!idea.priority)idea.priority="mid";
+    if(!idea.diff)idea.diff="easy";
+    if(!idea.tools)idea.tools=idea.ai?["Gemini"]:[];
+    if(!idea.addedAt)idea.addedAt=new Date().toISOString().slice(0,10);
+    if(idea.doneAt===undefined)idea.doneAt="";
+    if(!idea.link)idea.link="";
+    if(!idea.memo)idea.memo="";
+    if(!idea.privateMemo)idea.privateMemo="";
+  }));
+  sheetsUrl=localStorage.getItem("ideabank_sheets")||"";
+  PW=localStorage.getItem("ideabank_pw")||"5555";
+  // restore custom colors
+  try{const cc=localStorage.getItem("ideabank_colors");if(cc)Object.assign(customColorMap,JSON.parse(cc));}catch{}
+  updateSyncUI();
+}
+function saveData(){
+  localStorage.setItem("ideabank_v4",JSON.stringify(cats));
+  localStorage.setItem("ideabank_colors",JSON.stringify(customColorMap));
+}
+function save(){saveData();pushToSheets();}
 
-                                    {isAdmin && (
-                                        <button 
-                                            onClick={() => {
-                                                const newData = data.map(cat => {
-                                                    if (cat.id === selectedCatId) {
-                                                        return { ...cat, ideas: cat.ideas.map(i => i.id === selectedIdea.id ? selectedIdea : i) };
-                                                    }
-                                                    return cat;
-                                                });
-                                                saveData(newData);
-                                                setActiveModal(null);
-                                            }}
-                                            className="w-full bg-blue-600 text-white py-5 rounded-[24px] font-black shadow-xl shadow-blue-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <i data-lucide="save"></i> 변경사항 저장하기
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
+// ══ SYNC ══
+function updateSyncUI(){
+  const dot=document.getElementById("syncDot"),txt=document.getElementById("syncText"),st=document.getElementById("sheetsStatus");
+  if(sheetsUrl){dot.className="sync-dot dot-sheets";txt.textContent="Sheets";st.classList.add("show");}
+  else{dot.className="sync-dot dot-local";txt.textContent="로컬";st.classList.remove("show");}
+}
+function setSyncing(on){
+  document.getElementById("syncDot").className="sync-dot "+(on?"dot-syncing":"dot-sheets");
+  document.getElementById("syncText").textContent=on?"동기화 중...":"Sheets";
+}
+async function pushToSheets(){
+  if(!sheetsUrl)return;setSyncing(true);
+  try{
+    await fetch(sheetsUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"save",data:cats})});
+    document.getElementById("sheetsStatusText").textContent="📊 저장됨 — "+new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+  }catch{toast("Sheets 저장 실패");}
+  setSyncing(false);
+}
+async function pullFromSheets(){
+  if(!sheetsUrl)return;setSyncing(true);
+  try{
+    const r=await fetch(sheetsUrl+"?action=load&t="+Date.now());
+    const j=await r.json();
+    if(j&&j.data&&Array.isArray(j.data)){
+      cats=j.data;
+      cats.forEach(cat=>cat.ideas.forEach(idea=>{
+        if(!idea.status)idea.status="todo";
+        if(!idea.priority)idea.priority="mid";
+        if(!idea.diff)idea.diff="easy";
+        if(!idea.tools)idea.tools=idea.ai?["Gemini"]:[];
+        if(!idea.addedAt)idea.addedAt=new Date().toISOString().slice(0,10);
+        if(idea.doneAt===undefined)idea.doneAt="";
+        if(!idea.link)idea.link="";
+        if(!idea.memo)idea.memo="";
+        if(!idea.privateMemo)idea.privateMemo="";
+      }));
+      saveData();render();
+      document.getElementById("sheetsStatusText").textContent="📊 불러옴 — "+new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+      toast("Sheets에서 불러왔어요");
+    }
+  }catch{toast("Sheets 불러오기 실패");}
+  setSyncing(false);
+}
+function manualSync(){pullFromSheets();}
+function saveSheetsUrl(){
+  sheetsUrl=document.getElementById("sheetsUrlInput").value.trim();
+  localStorage.setItem("ideabank_sheets",sheetsUrl);
+  updateSyncUI();closeSheet("sheetsSheet");
+  if(sheetsUrl){pullFromSheets();toast("Sheets 연동 완료");}
+  else toast("연동 해제됨");
+}
 
-                    {/* Status Indicator */}
-                    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-                        {loading && (
-                            <div className="bg-black text-white px-4 py-2 rounded-full text-[10px] font-black tracking-widest flex items-center gap-2 shadow-2xl animate-pulse">
-                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping"></div> SYNCING
-                            </div>
-                        )}
-                        <div id="toast" className={`bg-black text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl transition-all duration-300 opacity-0 translate-y-4 ${toastMsg ? 'toast-active' : ''}`}>
-                            {toastMsg}
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+// ══ PASSWORD ══
+function tryToggleEdit(){if(editMode){toggleEdit();return;}openPwSheet("check");}
+function openPwSheet(mode){
+  pwMode=mode;pwBuffer="";
+  const titles={check:"🔒 편집 비밀번호",change_new:"🔑 새 비밀번호",change_confirm:"🔑 새 비밀번호 확인"};
+  const descs={check:"4자리 비밀번호를 입력하세요.",change_new:"새 4자리 비밀번호를 입력하세요.",change_confirm:"새 비밀번호를 다시 입력하세요."};
+  document.getElementById("pwSheetTitle").textContent=titles[mode];
+  document.getElementById("pwSheetDesc").textContent=descs[mode];
+  document.getElementById("pwError").textContent="";
+  renderPwDots();openSheet("pwSheet");
+}
+function renderPwDots(){
+  document.getElementById("pwDots").innerHTML=Array.from({length:4},(_,i)=>
+    `<div class="pw-dot${i<pwBuffer.length?" filled":""}"></div>`).join("");
+}
+function pwInput(n){
+  if(pwBuffer.length>=4)return;
+  pwBuffer+=n;renderPwDots();
+  if(pwBuffer.length===4)setTimeout(checkPw,80);
+}
+function pwDel(){pwBuffer=pwBuffer.slice(0,-1);renderPwDots();}
+function checkPw(){
+  if(pwMode==="check"){
+    if(pwBuffer===PW){closePwSheet();toggleEdit();}
+    else showPwError("비밀번호가 틀렸어요");
+  } else if(pwMode==="change_new"){
+    newPwTemp=pwBuffer;pwBuffer="";openPwSheet("change_confirm");
+  } else if(pwMode==="change_confirm"){
+    if(pwBuffer===newPwTemp){PW=newPwTemp;localStorage.setItem("ideabank_pw",PW);closePwSheet();toast("비밀번호 변경됨 ✓");}
+    else showPwError("일치하지 않아요");
+  }
+}
+function showPwError(msg){
+  document.getElementById("pwError").textContent=msg;
+  document.querySelectorAll(".pw-dot").forEach(d=>d.classList.add("error"));
+  setTimeout(()=>{pwBuffer="";renderPwDots();document.getElementById("pwError").textContent="";},800);
+}
+function closePwSheet(){closeSheet("pwSheet");pwBuffer="";}
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+// ══ EDIT MODE ══
+function toggleEdit(){
+  editMode=!editMode;
+  const btn=document.getElementById("editBtn");
+  btn.textContent=editMode?"✅":"✏️";
+  btn.classList.toggle("edit-on",editMode);
+  document.getElementById("editBanner").className=editMode?"edit-banner show":"edit-banner";
+  document.getElementById("fab").className=editMode?"fab hidden":"fab";
+  render();
+}
+
+// ══ SHOW DONE ══
+function toggleShowDone(){
+  showDone=!showDone;
+  document.getElementById("showDoneBtn").classList.toggle("active",showDone);
+  render();
+}
+
+// ══ SEARCH ══
+function onSearch(v){searchQuery=v.trim();document.getElementById("searchClear").style.display=v?"flex":"none";render();}
+function clearSearch(){document.getElementById("searchInput").value="";onSearch("");}
+function setFilter(id){currentFilter=id;renderFilter();renderGrid();}
+
+// ══ UNDO ══
+function pushUndo(msg,snap){
+  undoStack=[{msg,snap:JSON.parse(JSON.stringify(snap))}];
+  clearTimeout(undoTimer);
+  document.getElementById("undoMsg").textContent=msg;
+  const p=document.getElementById("undoProg");
+  p.style.animation="none";p.offsetHeight;p.style.animation="undoProg 4s linear forwards";
+  document.getElementById("undoSnack").classList.add("show");
+  undoTimer=setTimeout(()=>{document.getElementById("undoSnack").classList.remove("show");undoStack=[];},4000);
+}
+function doUndo(){
+  if(!undoStack.length)return;
+  cats=JSON.parse(JSON.stringify(undoStack[0].snap));
+  undoStack=[];clearTimeout(undoTimer);
+  document.getElementById("undoSnack").classList.remove("show");
+  save();render();toast("되돌렸어요");
+}
+
+// ══ MEMO TOGGLE ══
+function toggleMemo(key){
+  if(openMemos.has(key))openMemos.delete(key);else openMemos.add(key);
+  const panel=document.getElementById("mp-"+key);
+  const btn=document.getElementById("mt-"+key);
+  if(panel){panel.classList.toggle("open",openMemos.has(key));}
+  if(btn){btn.classList.toggle("open",openMemos.has(key));btn.textContent=openMemos.has(key)?"▴":"▾";}
+}
+
+// ══ SEG ══
+function setSeg(type,val){
+  editSeg[type]=val;
+  const mapId={status:"statusBtns",priority:"priorityBtns",diff:"diffBtns"};
+  document.querySelectorAll(`#${mapId[type]} .seg-btn`).forEach(b=>{
+    b.className="seg-btn"+(b.dataset.v===val?` sel-${val}`:"");
+  });
+}
+
+// ══ TOOL INPUT ══
+function renderEditToolTags(){
+  const wrap=document.getElementById("editToolTags");
+  wrap.innerHTML=editTools.map(name=>{
+    const{cls,style}=getToolStyle(name);
+    return `<span class="tool-tag ${cls}" style="${style}">${name}<button class="ttx" onclick="removeTool('${name.replace(/'/g,"\\'")}')">×</button></span>`;
+  }).join("");
+  // update preset btns
+  document.querySelectorAll("#presetTools .preset-btn").forEach(b=>{
+    b.classList.toggle("added",editTools.includes(b.dataset.name));
+  });
+}
+function addTool(name){
+  const n=name.trim();
+  if(!n||editTools.includes(n))return;
+  editTools.push(n);renderEditToolTags();
+}
+function removeTool(name){editTools=editTools.filter(t=>t!==name);renderEditToolTags();}
+function addToolFromInput(){
+  const inp=document.getElementById("toolInput");
+  addTool(inp.value);inp.value="";inp.focus();
+}
+function renderPresetTools(){
+  document.getElementById("presetTools").innerHTML=PRESET_TOOLS.map(t=>{
+    const added=editTools.includes(t.name);
+    return `<button class="preset-btn tool-badge ${t.cls}${added?" added":""}" data-name="${t.name}" onclick="addTool('${t.name}')">${t.name}</button>`;
+  }).join("");
+}
+
+// ══ CAT ACTIONS ══
+function toggleCat(catId){
+  if(collapsedCats.has(catId))collapsedCats.delete(catId);
+  else collapsedCats.add(catId);
+  const card=document.getElementById("cat-"+catId);
+  if(card)card.classList.toggle("collapsed",collapsedCats.has(catId));
+}
+function openCatEdit(catId){
+  if(!editMode)return;
+  editingCatId=catId;
+  document.getElementById("catNameInput").value=cats.find(c=>c.id===catId).title;
+  openSheet("catEditSheet");
+  setTimeout(()=>document.getElementById("catNameInput").focus(),300);
+}
+function saveCatName(){
+  const v=document.getElementById("catNameInput").value.trim();
+  if(v&&editingCatId){cats.find(c=>c.id===editingCatId).title=v;save();render();}
+  closeSheet("catEditSheet");editingCatId=null;
+}
+function deleteCat(catId){
+  const cat=cats.find(c=>c.id===catId);
+  if(!confirm(`"${cat.title}" 카테고리 전체를 삭제할까요?\n(${cat.ideas.length}개 아이디어 포함)`))return;
+  pushUndo(`"${cat.title}" 삭제됨`,cats);
+  cats=cats.filter(c=>c.id!==catId);save();render();
+}
+function addCategory(){
+  const name=prompt("새 카테고리 이름:");
+  if(!name||!name.trim())return;
+  const colors=["#7F77DD","#D85A30","#1D9E75","#378ADD","#BA7517","#639922","#D4537E","#5DCAA5"];
+  cats.push({id:"c_"+Date.now(),title:name.trim(),color:colors[cats.length%colors.length],ideas:[]});
+  save();render();toast(`"${name.trim()}" 추가됨`);
+}
+
+// ══ IDEA ACTIONS ══
+function openIdeaEdit(catId,realIdx){
+  if(!editMode)return;
+  editingIdeaKey={catId,idx:realIdx};
+  const idea=cats.find(c=>c.id===catId).ideas[realIdx];
+  document.getElementById("ideaNameInput").value=idea.name;
+  document.getElementById("ideaLinkInput").value=idea.link||"";
+  document.getElementById("ideaDoneAtInput").value=idea.doneAt||"";
+  document.getElementById("ideaMemoInput").value=idea.memo||"";
+  document.getElementById("ideaPrivateMemoInput").value=idea.privateMemo||"";
+  editSeg={status:idea.status||"todo",priority:idea.priority||"mid",diff:idea.diff||"easy"};
+  editTools=[...(idea.tools||[])];
+  ["status","priority","diff"].forEach(type=>{
+    const mapId={status:"statusBtns",priority:"priorityBtns",diff:"diffBtns"};
+    document.querySelectorAll(`#${mapId[type]} .seg-btn`).forEach(b=>{
+      b.className="seg-btn"+(b.dataset.v===editSeg[type]?` sel-${editSeg[type]}`:"");
+    });
+  });
+  renderPresetTools();renderEditToolTags();
+  openSheet("ideaEditSheet");
+  setTimeout(()=>document.getElementById("ideaNameInput").focus(),300);
+}
+function saveIdeaEdit(){
+  if(!editingIdeaKey)return;
+  const{catId,idx}=editingIdeaKey;
+  const v=document.getElementById("ideaNameInput").value.trim();
+  if(!v)return;
+  const idea=cats.find(c=>c.id===catId).ideas[idx];
+  const wasDone=idea.status==="done";
+  idea.name=v;
+  idea.status=editSeg.status;
+  idea.priority=editSeg.priority;
+  idea.diff=editSeg.diff;
+  idea.tools=[...editTools];
+  idea.ai=editTools.length>0;
+  idea.link=document.getElementById("ideaLinkInput").value.trim();
+  idea.memo=document.getElementById("ideaMemoInput").value.trim();
+  idea.privateMemo=document.getElementById("ideaPrivateMemoInput").value.trim();
+  const manualDate=document.getElementById("ideaDoneAtInput").value;
+  if(manualDate)idea.doneAt=manualDate;
+  else if(!wasDone&&editSeg.status==="done")idea.doneAt=new Date().toISOString().slice(0,10);
+  else if(editSeg.status!=="done")idea.doneAt="";
+  save();render();
+  closeSheet("ideaEditSheet");editingIdeaKey=null;
+}
+function deleteIdea(catId,idx){
+  const cat=cats.find(c=>c.id===catId);
+  const name=cat.ideas[idx].name;
+  pushUndo(`"${name}" 삭제됨`,cats);
+  cat.ideas.splice(idx,1);save();render();
+}
+function moveIdea(catId,idx,dir){
+  const ideas=cats.find(c=>c.id===catId).ideas;
+  const t=idx+dir;
+  if(t<0||t>=ideas.length)return;
+  [ideas[idx],ideas[t]]=[ideas[t],ideas[idx]];
+  save();render();
+}
+
+// ══ QUICK ADD ══
+function openQuickAdd(){
+  if(editMode)return;
+  document.getElementById("quickAddName").value="";
+  quickCatId=cats[0]?.id||null;
+  document.getElementById("quickCatBtns").innerHTML=cats.map(c=>
+    `<button class="seg-btn${quickCatId===c.id?" sel-todo":""}" onclick="selectQuickCat('${c.id}',this)">${c.title.split("·")[0]}</button>`
+  ).join("");
+  openSheet("quickAddSheet");
+  setTimeout(()=>document.getElementById("quickAddName").focus(),300);
+}
+function selectQuickCat(id,btn){
+  quickCatId=id;
+  document.querySelectorAll("#quickCatBtns .seg-btn").forEach(b=>b.className="seg-btn");
+  btn.className="seg-btn sel-todo";
+}
+function doQuickAdd(){
+  const v=document.getElementById("quickAddName").value.trim();
+  if(!v||!quickCatId)return;
+  cats.find(c=>c.id===quickCatId).ideas.push({
+    name:v,ai:false,tools:[],status:"todo",priority:"mid",diff:"easy",
+    addedAt:new Date().toISOString().slice(0,10),doneAt:"",link:"",memo:"",privateMemo:""
+  });
+  save();render();closeSheet("quickAddSheet");toast(`"${v}" 추가됨`);
+}
+
+// ══ PROMPT ══
+function openPrompt(name,catId,tools){
+  if(editMode)return;
+  const toolStr=tools&&tools.length?tools.join(", "):"없음";
+  pendingPrompt=`앱명: ${name}\n목적: ${name}에 맞는 기능 구현\n사용 도구: ${toolStr}\nDB방식: ${DB_MAP[catId]||"localStorage"}\n\n위 조건으로 앱 만들어줘`;
+  document.getElementById("promptPreview").textContent=pendingPrompt;
+  openSheet("promptSheet");
+}
+function confirmCopy(){
+  if(!pendingPrompt)return;
+  navigator.clipboard.writeText(pendingPrompt)
+    .then(()=>{closeSheet("promptSheet");toast("복사됨 ✓");})
+    .catch(()=>{const ta=document.createElement("textarea");ta.value=pendingPrompt;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);closeSheet("promptSheet");toast("복사됨 ✓");});
+}
+
+// ══ EXPORT / IMPORT / RESET ══
+function exportData(){
+  const blob=new Blob([JSON.stringify(cats,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=`ideabank_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();URL.revokeObjectURL(url);toast("백업 다운로드됨");
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!Array.isArray(d))throw new Error();
+      pushUndo("복원 전 상태",cats);cats=d;save();render();toast("복원됨 ✓");
+    }catch{toast("파일 형식이 맞지 않아요");}
+  };
+  r.readAsText(file);e.target.value="";
+}
+function resetData(){
+  if(!confirm("기본 데이터로 초기화할까요?\n현재 데이터는 사라져요."))return;
+  pushUndo("초기화 전 상태",cats);
+  cats=JSON.parse(JSON.stringify(DEFAULTS));save();render();toast("초기화됨");
+}
+
+// ══ SHEET HELPERS ══
+function openSheet(id){
+  if(id==="sheetsSheet")document.getElementById("sheetsUrlInput").value=sheetsUrl;
+  document.getElementById(id).classList.add("open");
+}
+function closeSheet(id){document.getElementById(id).classList.remove("open");}
+function openMenu(){openSheet("menuSheet");}
+["sheetsSheet","pwSheet","ideaEditSheet","catEditSheet","quickAddSheet","promptSheet","menuSheet"].forEach(id=>{
+  document.getElementById(id).addEventListener("click",e=>{if(e.target===e.currentTarget)closeSheet(id);});
+});
+
+// ══ HIGHLIGHT ══
+function hl(text,q){
+  if(!q)return text;
+  return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")})`,"gi"),"<mark>$1</mark>");
+}
+
+// ══ RENDER ══
+function render(){renderStats();renderFilter();renderGrid();}
+
+function renderStats(){
+  const all=cats.flatMap(c=>c.ideas);
+  const t=all.length,done=all.filter(i=>i.status==="done").length,wip=all.filter(i=>i.status==="wip").length,todo=all.filter(i=>i.status==="todo").length;
+  document.getElementById("statsBar").innerHTML=`
+    <div class="stat"><span class="stat-n">${t}</span><span class="stat-l">전체</span></div>
+    <div class="stat"><span class="stat-n">${todo}</span><span class="stat-l">미완성</span></div>
+    <div class="stat"><span class="stat-n">${wip}</span><span class="stat-l">작업중</span></div>
+    <div class="stat"><span class="stat-n">${done}</span><span class="stat-l">완료</span></div>`;
+  document.getElementById("doneCountBadge").textContent=done;
+}
+
+function renderFilter(){
+  document.getElementById("filterBar").innerHTML=
+    [["all","전체"],...cats.map(c=>[c.id,c.title.split("·")[0]])]
+    .map(([id,label])=>`<button class="chip${currentFilter===id?" active":""}" onclick="setFilter('${id}')">${label}</button>`)
+    .join("");
+}
+
+function toolBadgeHtml(name){
+  const{cls,style}=getToolStyle(name);
+  return `<span class="tool-badge ${cls}" style="${style}">${name}</span>`;
+}
+
+function renderGrid(){
+  let filtered=currentFilter==="all"?cats:cats.filter(c=>c.id===currentFilter);
+  if(searchQuery){
+    filtered=filtered.map(cat=>{
+      const ideas=cat.ideas.filter(i=>
+        i.name.includes(searchQuery)||
+        (i.memo&&i.memo.includes(searchQuery))||
+        (i.privateMemo&&i.privateMemo.includes(searchQuery))||
+        (i.tools&&i.tools.some(t=>t.toLowerCase().includes(searchQuery.toLowerCase())))
+      );
+      return ideas.length?{...cat,ideas}:null;
+    }).filter(Boolean);
+  }
+  const grid=document.getElementById("grid");
+
+  // ── 완료 상단 섹션 ──
+  const allDoneIdeas=[];
+  filtered.forEach(cat=>{
+    cat.ideas.filter(i=>i.status==="done").forEach(idea=>{
+      allDoneIdeas.push({idea,catTitle:cat.title,catId:cat.id});
+    });
+  });
+
+  let doneSectionHtml="";
+  if(allDoneIdeas.length){
+    const cards=allDoneIdeas.map(({idea,catTitle})=>{
+      const toolsHtml=(idea.tools||[]).map(toolBadgeHtml).join("");
+      const linkBtn=idea.link
+        ?`<a class="done-link-btn" href="${idea.link}" target="_blank">🔗 앱 열기</a>`
+        :`<span class="done-no-link">링크 없음</span>`;
+      return `<div class="done-card">
+        <div class="done-card-info">
+          <div class="done-card-name">${hl(idea.name,searchQuery)}</div>
+          <div class="done-card-meta">
+            <span class="done-card-cat">${catTitle}</span>
+            ${idea.doneAt?`<span class="done-card-date">✅ ${idea.doneAt}</span>`:""}
+            ${toolsHtml}
+          </div>
+        </div>
+        ${linkBtn}
+      </div>`;
+    }).join("");
+    doneSectionHtml=`<div class="done-section${doneSectionCollapsed?" collapsed":""}">
+      <div class="done-section-head" onclick="doneSectionCollapsed=!doneSectionCollapsed;render()">
+        <h3>✅ 완성된 앱</h3>
+        <span class="done-section-count">${allDoneIdeas.length}개</span>
+        <span class="done-section-arrow">▾</span>
+      </div>
+      <div class="done-cards">${cards}</div>
+    </div>`;
+  }
+
+  // ── 카테고리 카드 ──
+  const addCatBtn=editMode?`<button class="add-cat-btn show" onclick="addCategory()"><span style="font-size:18px">+</span> 카테고리 추가</button>`:"";
+
+  const catCards=filtered.map(cat=>{
+    const activeIdeas=cat.ideas.filter(i=>i.status!=="done");
+    const doneIdeas=showDone?cat.ideas.filter(i=>i.status==="done"):[];
+    const doneCount=cat.ideas.filter(i=>i.status==="done").length;
+    const isCollapsed=collapsedCats.has(cat.id)&&!editMode;
+
+    function ideaRowHtml(idea,realIdx,isDone){
+      const key=cat.id+"-"+realIdx;
+      const hasMemo=idea.memo||idea.privateMemo;
+      const memoOpen=openMemos.has(key);
+
+      const statusBadge={todo:`<span class="badge b-todo">미완성</span>`,wip:`<span class="badge b-wip">작업중</span>`,done:`<span class="badge b-done">완료</span>`}[idea.status||"todo"];
+      const priBadge=idea.priority==="high"?`<span class="badge b-high">높음</span>`:"";
+      const diffBadge=idea.diff==="hard"?`<span class="badge b-hard">어려움</span>`:idea.diff==="medium"?`<span class="badge b-medium">보통</span>`:"";
+      const toolsHtml=(idea.tools||[]).map(toolBadgeHtml).join("");
+      const dateStr=idea.addedAt?`<span class="meta-date">${idea.addedAt}</span>`:"";
+
+      const memoPanel=hasMemo?`<div class="memo-panel${memoOpen?" open":""}" id="mp-${key}">
+        ${idea.memo?`<div class="memo-block"><div class="memo-label">📝 설명 메모</div><div class="memo-text">${hl(idea.memo,searchQuery)}</div></div>`:""}
+        ${idea.privateMemo?`<div class="memo-block memo-private"><div class="memo-label">🔒 개인 메모</div><div class="memo-text">${hl(idea.privateMemo,searchQuery)}</div></div>`:""}
+      </div>`:"";
+
+      const memoBtn=hasMemo?`<button class="memo-toggle${memoOpen?" open":""}" id="mt-${key}" onclick="event.stopPropagation();toggleMemo('${key}')" title="메모 보기">${memoOpen?"▴":"▾"}</button>`:"";
+
+      if(editMode){
+        return `<div class="idea-row${isDone?" done-idea":""}">
+          <div class="order-btns">
+            <button class="order-btn" onclick="moveIdea('${cat.id}',${realIdx},-1)">▲</button>
+            <button class="order-btn" onclick="moveIdea('${cat.id}',${realIdx},1)">▼</button>
+          </div>
+          <button class="idea-main" onclick="openIdeaEdit('${cat.id}',${realIdx})">
+            <span class="l">
+              <span class="name">${hl(idea.name,searchQuery)}</span>
+              <span class="badges">${statusBadge}${priBadge}${diffBadge}${toolsHtml}${dateStr}</span>
+            </span>
+          </button>
+          <button class="del-idea" onclick="deleteIdea('${cat.id}',${realIdx})">🗑</button>
+        </div>${memoPanel}`;
+      } else {
+        const toolsArr=idea.tools||[];
+        const toolsJson=JSON.stringify(toolsArr).replace(/"/g,"&quot;");
+        return `<div class="idea-row${isDone?" done-idea":""}">
+          <button class="idea-main" onclick="openPrompt('${idea.name.replace(/'/g,"\\'")}','${cat.id}',${JSON.stringify(toolsArr)})">
+            <span class="l">
+              <span class="name">${hl(idea.name,searchQuery)}</span>
+              <span class="badges">${statusBadge}${priBadge}${diffBadge}${toolsHtml}${dateStr}</span>
+            </span>
+            <span class="r">${memoBtn}<span style="font-size:11px;color:var(--hint);">↗</span></span>
+          </button>
+        </div>${memoPanel}`;
+      }
+    }
+
+    const activeRows=activeIdeas.map(idea=>{
+      const realIdx=cat.ideas.indexOf(idea);
+      return ideaRowHtml(idea,realIdx,false);
+    }).join("");
+
+    const doneRows=doneIdeas.length?
+      `<div class="done-divider"><div class="done-divider-line"></div><div class="done-divider-label">완료</div><div class="done-divider-line"></div></div>`+
+      doneIdeas.map(idea=>{
+        const realIdx=cat.ideas.indexOf(idea);
+        return ideaRowHtml(idea,realIdx,true);
+      }).join("")
+    :"";
+
+    const addRow=editMode?`<div class="add-row">
+      <div class="add-input-row">
+        <input class="add-in" id="ai-${cat.id}" placeholder="새 아이디어..." onkeydown="if(event.key==='Enter')addIdeaInline('${cat.id}')">
+        <button class="add-ok" onclick="addIdeaInline('${cat.id}')">추가</button>
+      </div>
+    </div>`:"";
+
+    const catDelBtn=editMode?`<button class="cat-del" onclick="event.stopPropagation();deleteCat('${cat.id}')">🗑</button>`:"";
+    const donePill=doneCount?`<span class="cat-done-pill">완료 ${doneCount}</span>`:"";
+
+    return `<div class="cat-card${isCollapsed?" collapsed":""}${editMode?" edit-active":""}" id="cat-${cat.id}">
+      <div class="cat-head" onclick="${editMode?`openCatEdit('${cat.id}')`:`toggleCat('${cat.id}')`}">
+        <div class="cat-dot" style="background:${cat.color}"></div>
+        <span class="cat-title">${cat.title}</span>
+        <span class="cat-meta">${donePill}<span class="cat-count">${cat.ideas.length}</span>${catDelBtn}</span>
+        <span class="cat-arrow">▾</span>
+      </div>
+      <div class="cat-body">
+        <div class="idea-list">${activeRows}${doneRows}</div>
+        ${addRow}
+      </div>
+    </div>`;
+  }).join("");
+
+  if(!filtered.length){
+    grid.innerHTML=`<div style="text-align:center;padding:3rem;color:var(--hint);font-size:14px;">${searchQuery?`"${searchQuery}" 검색 결과 없음`:"아이디어가 없어요"}</div>`;
+    return;
+  }
+  grid.innerHTML=doneSectionHtml+addCatBtn+catCards;
+}
+
+function addIdeaInline(catId){
+  const inp=document.getElementById("ai-"+catId);
+  if(!inp)return;
+  const v=inp.value.trim();
+  if(!v){inp.focus();return;}
+  cats.find(c=>c.id===catId).ideas.push({
+    name:v,ai:false,tools:[],status:"todo",priority:"mid",diff:"easy",
+    addedAt:new Date().toISOString().slice(0,10),doneAt:"",link:"",memo:"",privateMemo:""
+  });
+  inp.value="";save();render();toast(`"${v}" 추가됨`);
+  setTimeout(()=>{const ni=document.getElementById("ai-"+catId);if(ni)ni.focus();},50);
+}
+
+// ══ TOAST ══
+let toastT;
+function toast(msg){
+  const el=document.getElementById("toastEl");
+  el.textContent=msg;el.classList.add("show");
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove("show"),2500);
+}
+
+// ══ INIT ══
+loadData();render();
+if(sheetsUrl)pullFromSheets();
+</script>
 </body>
 </html>
