@@ -770,7 +770,7 @@ async function performConversion() {
   const text = document.getElementById('inputText').value.trim();
   if (!text) { showToast('변환할 문장을 입력하세요'); return; }
 
-  if (!WORKER_URL || WORKER_URL.includes('여은혜')) {
+  if (!WORKER_URL) {
     showToast('Workers URL을 설정해주세요 (worker.js 참고)');
     return;
   }
