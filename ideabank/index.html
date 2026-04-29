@@ -215,8 +215,10 @@ mark{background:rgba(43,79,219,0.15);border-radius:2px;color:inherit;}
   <div class="topbar-right">
     <!-- PC: text buttons -->
     <button class="text-btn sheets-btn pc-only" onclick="openSheet('sheetsSheet')" id="sheetsBtn">📊 Sheets 연동</button>
+    <button class="text-btn pc-only" onclick="manualSync()">🔄 동기화</button>
     <button class="text-btn pc-only" onclick="exportData()">⬇ 백업</button>
     <label class="text-btn pc-only" style="cursor:pointer;">⬆ 복원<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+    <button class="text-btn pc-only" onclick="resetData()" style="color:var(--danger);border-color:rgba(192,57,43,0.3);">🔄 초기화</button>
     <!-- Both: edit & menu -->
     <button class="icon-btn" id="editBtn" onclick="toggleEdit()" title="편집">✏️</button>
     <button class="icon-btn mobile-only" onclick="openMenu()" title="메뉴">⋯</button>
